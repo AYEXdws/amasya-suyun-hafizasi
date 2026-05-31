@@ -22,6 +22,7 @@ export default function ScrollScrubScene({
   movSrc,
   mp4Src,
   webmSrc,
+  posterSrc,
   className = "",
   hintLabels,
 }) {
@@ -142,6 +143,7 @@ export default function ScrollScrubScene({
             muted
             playsInline
             preload="auto"
+            poster={posterSrc || place?.image}
             onError={() => setVideoFailed(true)}
           >
             {mediaSources.mov && <source src={mediaSources.mov} type="video/quicktime" />}

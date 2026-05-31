@@ -32,6 +32,16 @@ const pageMotion = {
 function SceneMedia({ image, video, eager = false }) {
   return (
     <div className="scene-media" aria-hidden="true">
+      {image && (
+        <img
+          src={image}
+          alt=""
+          loading={eager ? "eager" : "lazy"}
+          onError={(event) => {
+            event.currentTarget.hidden = true;
+          }}
+        />
+      )}
       {video && (
         <video
           src={video}
@@ -40,17 +50,7 @@ function SceneMedia({ image, video, eager = false }) {
           muted
           loop
           playsInline
-          preload="metadata"
-          onError={(event) => {
-            event.currentTarget.hidden = true;
-          }}
-        />
-      )}
-      {image && (
-        <img
-          src={image}
-          alt=""
-          loading={eager ? "eager" : "lazy"}
+          preload="auto"
           onError={(event) => {
             event.currentTarget.hidden = true;
           }}
@@ -159,6 +159,7 @@ function HomePage({ locale }) {
       <ScrollScrubScene
         className="home-scrub"
         mp4Src="/assets/videos/manzara-yavas-cekim.mp4"
+        posterSrc="/assets/images/manzara-yavas-cekim.jpg"
         hintLabels={copy.scrub}
       />
     </>
