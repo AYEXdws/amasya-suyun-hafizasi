@@ -39,7 +39,7 @@ export default function ScrollScrubScene({
   const [pinState, setPinState] = useState("before");
 
   const mediaSources = useMemo(() => {
-    const derived = mediaSourcesFrom(place?.video || movSrc);
+    const derived = mediaSourcesFrom(place?.video || mp4Src || webmSrc || movSrc);
     return {
       mov: movSrc || derived.mov,
       mp4: mp4Src || derived.mp4,
@@ -124,6 +124,7 @@ export default function ScrollScrubScene({
   }, [mediaSources.mov, mediaSources.mp4, mediaSources.webm]);
 
   const textureClass = place?.texture || "water";
+  const poster = posterSrc || place?.image;
   const label = place?.name
     ? `${place.name} scroll kontrollü sahnesi`
     : "Scroll kontrollü Amasya sahnesi";
@@ -135,6 +136,18 @@ export default function ScrollScrubScene({
       aria-label={label}
     >
       <div className="scrub-sticky">
+        {poster && (
+          <img
+            className="scrub-poster"
+            src={poster}
+            alt=""
+            aria-hidden="true"
+            onError={(event) => {
+              event.currentTarget.hidden = true;
+            }}
+          />
+        )}
+
         {!videoFailed && (
           <video
             key={mediaSources.mp4 || mediaSources.mov || mediaSources.webm}
@@ -143,7 +156,7 @@ export default function ScrollScrubScene({
             muted
             playsInline
             preload="auto"
-            poster={posterSrc || place?.image}
+            poster={poster}
             onError={() => setVideoFailed(true)}
           >
             {mediaSources.mov && <source src={mediaSources.mov} type="video/quicktime" />}

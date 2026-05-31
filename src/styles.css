@@ -514,19 +514,29 @@ audio {
 }
 
 .scrub-video,
+.scrub-poster,
 .scrub-placeholder {
   position: absolute;
   inset: -1dvh 0;
-  z-index: -5;
+  z-index: 0;
   width: 100%;
   height: 102dvh;
   max-width: none;
 }
 
-.scrub-video {
+.scrub-poster {
   object-fit: cover;
   object-position: center center;
-  background: var(--deep);
+  transform: scale(var(--scrub-video-scale));
+  transform-origin: center center;
+  filter: saturate(0.94) contrast(1.03);
+}
+
+.scrub-video {
+  z-index: 1;
+  object-fit: cover;
+  object-position: center center;
+  background: transparent;
   transform: scale(var(--scrub-video-scale));
   transform-origin: center center;
   filter: saturate(0.94) contrast(1.03);
@@ -584,7 +594,7 @@ audio {
 .scrub-overlay {
   position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: 2;
   pointer-events: none;
   background:
     radial-gradient(circle at 56% 42%, transparent 0 38%, rgba(3, 8, 10, 0.18) 70%, rgba(3, 8, 10, 0.56) 100%),
@@ -1156,6 +1166,7 @@ audio {
   }
 
   .scrub-video,
+  .scrub-poster,
   .scrub-placeholder {
     inset: -2dvh 0;
     height: 104dvh;
