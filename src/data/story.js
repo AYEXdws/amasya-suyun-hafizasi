@@ -1,4 +1,4 @@
-const assetPath = (type, fileName) => `/assets/${type}/${fileName}`;
+import { mediaPath as assetPath } from "./media";
 
 export const languages = {
   tr: "TR",

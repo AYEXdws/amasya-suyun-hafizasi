@@ -12,6 +12,7 @@ import {
 import AudioController from "./components/AudioController";
 import InteractiveStory from "./components/InteractiveStory";
 import ScrollScrubScene from "./components/ScrollScrubScene";
+import { mediaPath } from "./data/media";
 import { heroAssets } from "./data/stops";
 import {
   dayRouteIds,
@@ -158,8 +159,8 @@ function HomePage({ locale }) {
       </CinematicScene>
       <ScrollScrubScene
         className="home-scrub"
-        mp4Src="/assets/videos/manzara-yavas-cekim.mp4"
-        posterSrc="/assets/images/manzara-yavas-cekim.jpg"
+        mp4Src={mediaPath("videos", "manzara-yavas-cekim.mp4")}
+        posterSrc={mediaPath("images", "manzara-yavas-cekim.jpg")}
         hintLabels={copy.scrub}
       />
     </>
