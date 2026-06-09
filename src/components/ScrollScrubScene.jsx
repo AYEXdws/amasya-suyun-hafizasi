@@ -47,9 +47,11 @@ export default function ScrollScrubScene({
   const progressBarRef = useRef(null);
   const prefersReducedMotionRef = useRef(false);
   const coarsePointerRef = useRef(false);
+  const passivePlaybackRef = useRef(false);
   const [progress, setProgress] = useState(0);
   const [videoFailed, setVideoFailed] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
+  const [isPassivePlayback, setIsPassivePlayback] = useState(false);
   const [pinState, setPinState] = useState("before");
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
@@ -74,7 +76,9 @@ export default function ScrollScrubScene({
   useEffect(() => {
     prefersReducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     coarsePointerRef.current = window.matchMedia("(pointer: coarse)").matches;
+    passivePlaybackRef.current = coarsePointerRef.current || prefersReducedMotionRef.current;
     setIsTouch(coarsePointerRef.current);
+    setIsPassivePlayback(passivePlaybackRef.current);
   }, []);
 
   useEffect(() => {
@@ -157,7 +161,12 @@ export default function ScrollScrubScene({
 
       setPinState((current) => (current === nextPinState ? current : nextPinState));
 
-      if (metadataReadyRef.current && Number.isFinite(video.duration) && video.duration > 0) {
+      if (
+        !passivePlaybackRef.current &&
+        metadataReadyRef.current &&
+        Number.isFinite(video.duration) &&
+        video.duration > 0
+      ) {
         targetTimeRef.current = nextProgress * video.duration;
       }
     };
@@ -172,7 +181,7 @@ export default function ScrollScrubScene({
     };
 
     const animate = (now = 0) => {
-      if (metadataReadyRef.current && !prefersReducedMotionRef.current) {
+      if (metadataReadyRef.current && !passivePlaybackRef.current) {
         const isCoarse = coarsePointerRef.current;
         const lerpAmount = isCoarse ? 0.08 : 0.12;
         const minSeekInterval = isCoarse ? 95 : 48;
@@ -196,10 +205,18 @@ export default function ScrollScrubScene({
 
     const handleLoadedMetadata = () => {
       metadataReadyRef.current = true;
-      video.pause();
-      video.currentTime = 0;
       displayedTimeRef.current = 0;
       updateTargetFromScroll();
+
+      if (passivePlaybackRef.current) {
+        video.play().catch(() => {
+          video.controls = false;
+        });
+        return;
+      }
+
+      video.pause();
+      video.currentTime = 0;
     };
 
     const handleError = () => {
@@ -213,14 +230,18 @@ export default function ScrollScrubScene({
 
     video.load();
     updateTargetFromScroll();
-    frameRef.current = requestAnimationFrame(animate);
+    if (!passivePlaybackRef.current) {
+      frameRef.current = requestAnimationFrame(animate);
+    }
 
     return () => {
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
       video.removeEventListener("error", handleError);
       window.removeEventListener("scroll", updateTargetFromScroll);
       window.removeEventListener("resize", updateTargetFromScroll);
-      cancelAnimationFrame(frameRef.current);
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
     };
   }, [mediaSources.mov, mediaSources.mp4, mediaSources.webm, shouldLoadVideo]);
 
@@ -232,7 +253,9 @@ export default function ScrollScrubScene({
 
   return (
     <section
-      className={`scrub-section ${textureClass} ${children ? "has-content" : ""} is-${pinState} ${className}`.trim()}
+      className={`scrub-section ${textureClass} ${children ? "has-content" : ""} ${
+        isPassivePlayback ? "is-passive" : "is-scrubbing"
+      } is-${pinState} ${className}`.trim()}
       ref={sectionRef}
       aria-label={label}
     >
@@ -256,6 +279,8 @@ export default function ScrollScrubScene({
             ref={videoRef}
             muted
             playsInline
+            autoPlay={isPassivePlayback}
+            loop={isPassivePlayback}
             preload="metadata"
             poster={poster}
             onError={() => setVideoFailed(true)}

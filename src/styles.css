@@ -1149,13 +1149,13 @@ audio {
   }
 
   .scrub-section {
-    height: 330vh;
+    height: 220vh;
   }
 
   .route-page,
   .route-page .scrub-section {
-    min-height: 330vh;
-    height: 330vh;
+    min-height: 220vh;
+    height: 220vh;
   }
 
   .scrub-sticky,
@@ -1170,6 +1170,10 @@ audio {
   .scrub-placeholder {
     inset: -2dvh 0;
     height: 104dvh;
+  }
+
+  .scrub-section.is-passive .scrub-video {
+    will-change: auto;
   }
 
   .scrub-overlay {

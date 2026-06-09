@@ -30,7 +30,21 @@ const pageMotion = {
   transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] },
 };
 
+const playbackSourcesFor = (video) => {
+  if (!video?.endsWith(".mp4") || typeof window === "undefined") {
+    return video ? [video] : [];
+  }
+
+  const useMobileVideo =
+    window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(max-width: 760px)").matches;
+  const optimized = video.replace(/\.mp4$/i, useMobileVideo ? "-scrub-720.mp4" : "-scrub-1080.mp4");
+
+  return optimized === video ? [video] : [optimized, video];
+};
+
 function SceneMedia({ image, video, eager = false }) {
+  const videoSources = playbackSourcesFor(video);
+
   return (
     <div className="scene-media" aria-hidden="true">
       {image && (
@@ -43,19 +57,22 @@ function SceneMedia({ image, video, eager = false }) {
           }}
         />
       )}
-      {video && (
+      {videoSources.length > 0 && (
         <video
-          src={video}
           poster={image}
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload={eager ? "metadata" : "none"}
           onError={(event) => {
             event.currentTarget.hidden = true;
           }}
-        />
+        >
+          {videoSources.map((source) => (
+            <source key={source} src={source} type="video/mp4" />
+          ))}
+        </video>
       )}
     </div>
   );
