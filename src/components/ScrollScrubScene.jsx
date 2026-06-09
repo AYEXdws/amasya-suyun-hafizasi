@@ -22,7 +22,7 @@ const optimizedVideoSource = (src) => {
   const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
   const narrowViewport = window.matchMedia("(max-width: 760px)").matches;
 
-  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-mobile-v2.mp4" : "-scrub-1080.mp4");
+  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-mobile-v3.mp4" : "-scrub-1080.mp4");
 };
 
 export default function ScrollScrubScene({
@@ -55,6 +55,7 @@ export default function ScrollScrubScene({
   const [isPassivePlayback, setIsPassivePlayback] = useState(false);
   const [pinState, setPinState] = useState("before");
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
 
   const mediaSources = useMemo(() => {
     const derived = mediaSourcesFrom(place?.video || mp4Src || webmSrc || movSrc);
@@ -144,6 +145,7 @@ export default function ScrollScrubScene({
     lastIssuedTimeRef.current = -1;
     setProgress(0);
     setVideoFailed(false);
+    setIsVideoReady(false);
 
     const updateTargetFromScroll = () => {
       const rect = section.getBoundingClientRect();
@@ -170,7 +172,7 @@ export default function ScrollScrubScene({
         video.duration > 0
       ) {
         const rawTarget = nextProgress * video.duration;
-        const timeStep = coarsePointerRef.current ? 0.1 : 0.045;
+        const timeStep = coarsePointerRef.current ? 1 / 15 : 0.045;
         targetTimeRef.current = Math.round(rawTarget / timeStep) * timeStep;
       }
     };
@@ -187,10 +189,12 @@ export default function ScrollScrubScene({
     const animate = (now = 0) => {
       if (metadataReadyRef.current && !passivePlaybackRef.current) {
         const isCoarse = coarsePointerRef.current;
-        const lerpAmount = isCoarse ? 0.06 : 0.12;
-        const minSeekInterval = isCoarse ? 120 : 48;
-        const seekThreshold = isCoarse ? 0.095 : 0.055;
-        const nextTime = lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
+        const lerpAmount = 0.12;
+        const minSeekInterval = isCoarse ? 72 : 48;
+        const seekThreshold = isCoarse ? 1 / 20 : 0.055;
+        const nextTime = isCoarse
+          ? targetTimeRef.current
+          : lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
 
         displayedTimeRef.current = nextTime;
 
@@ -213,6 +217,7 @@ export default function ScrollScrubScene({
       metadataReadyRef.current = true;
       displayedTimeRef.current = 0;
       lastIssuedTimeRef.current = -1;
+      setIsVideoReady(true);
       updateTargetFromScroll();
 
       if (passivePlaybackRef.current) {
@@ -227,6 +232,7 @@ export default function ScrollScrubScene({
     };
 
     const handleError = () => {
+      setIsVideoReady(false);
       setVideoFailed(true);
     };
 
@@ -262,7 +268,7 @@ export default function ScrollScrubScene({
     <section
       className={`scrub-section ${textureClass} ${children ? "has-content" : ""} ${
         isPassivePlayback ? "is-passive" : "is-scrubbing"
-      } is-${pinState} ${className}`.trim()}
+      } ${isVideoReady ? "has-video-ready" : ""} is-${pinState} ${className}`.trim()}
       ref={sectionRef}
       aria-label={label}
     >

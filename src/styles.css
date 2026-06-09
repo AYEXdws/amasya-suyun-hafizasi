@@ -530,6 +530,11 @@ audio {
   transform: scale(var(--scrub-video-scale));
   transform-origin: center center;
   filter: saturate(0.94) contrast(1.03);
+  transition: opacity 0.28s ease;
+}
+
+.scrub-section.has-video-ready .scrub-poster {
+  opacity: 0;
 }
 
 .scrub-video {
