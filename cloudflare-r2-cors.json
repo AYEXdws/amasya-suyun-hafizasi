@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": [
+          "https://amasya-suyun-hafizasi.vercel.app",
+          "https://amasya-suyun-hafizasi-ayexdws-projects.vercel.app"
+        ],
+        "methods": ["GET", "HEAD"],
+        "headers": ["Range", "Content-Type"]
+      },
+      "exposeHeaders": [
+        "Accept-Ranges",
+        "Content-Range",
+        "Content-Length",
+        "ETag",
+        "Cache-Control"
+      ],
+      "maxAgeSeconds": 86400
+    }
+  ]
+}
