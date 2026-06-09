@@ -22,7 +22,7 @@ const optimizedVideoSource = (src) => {
   const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
   const narrowViewport = window.matchMedia("(max-width: 760px)").matches;
 
-  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-mobile.mp4" : "-scrub-1080.mp4");
+  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-mobile-v2.mp4" : "-scrub-1080.mp4");
 };
 
 export default function ScrollScrubScene({
@@ -44,6 +44,7 @@ export default function ScrollScrubScene({
   const displayedTimeRef = useRef(0);
   const lastSeekAtRef = useRef(0);
   const lastProgressRef = useRef(-1);
+  const lastIssuedTimeRef = useRef(-1);
   const progressBarRef = useRef(null);
   const prefersReducedMotionRef = useRef(false);
   const coarsePointerRef = useRef(false);
@@ -140,6 +141,7 @@ export default function ScrollScrubScene({
     displayedTimeRef.current = 0;
     lastSeekAtRef.current = 0;
     lastProgressRef.current = -1;
+    lastIssuedTimeRef.current = -1;
     setProgress(0);
     setVideoFailed(false);
 
@@ -154,7 +156,7 @@ export default function ScrollScrubScene({
         progressBarRef.current.style.transform = `scaleX(${nextProgress})`;
       }
 
-      if (Math.abs(nextProgress - lastProgressRef.current) > 0.01) {
+      if (captions.length > 0 && Math.abs(nextProgress - lastProgressRef.current) > 0.02) {
         lastProgressRef.current = nextProgress;
         setProgress(nextProgress);
       }
@@ -167,7 +169,9 @@ export default function ScrollScrubScene({
         Number.isFinite(video.duration) &&
         video.duration > 0
       ) {
-        targetTimeRef.current = nextProgress * video.duration;
+        const rawTarget = nextProgress * video.duration;
+        const timeStep = coarsePointerRef.current ? 0.1 : 0.045;
+        targetTimeRef.current = Math.round(rawTarget / timeStep) * timeStep;
       }
     };
 
@@ -183,9 +187,9 @@ export default function ScrollScrubScene({
     const animate = (now = 0) => {
       if (metadataReadyRef.current && !passivePlaybackRef.current) {
         const isCoarse = coarsePointerRef.current;
-        const lerpAmount = isCoarse ? 0.08 : 0.12;
-        const minSeekInterval = isCoarse ? 95 : 48;
-        const seekThreshold = isCoarse ? 0.12 : 0.055;
+        const lerpAmount = isCoarse ? 0.06 : 0.12;
+        const minSeekInterval = isCoarse ? 120 : 48;
+        const seekThreshold = isCoarse ? 0.095 : 0.055;
         const nextTime = lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
 
         displayedTimeRef.current = nextTime;
@@ -193,9 +197,11 @@ export default function ScrollScrubScene({
         if (
           now - lastSeekAtRef.current >= minSeekInterval &&
           Math.abs(video.currentTime - nextTime) > seekThreshold &&
+          Math.abs(lastIssuedTimeRef.current - nextTime) > seekThreshold &&
           !video.seeking
         ) {
           lastSeekAtRef.current = now;
+          lastIssuedTimeRef.current = nextTime;
           seekVideo(nextTime);
         }
       }
@@ -206,6 +212,7 @@ export default function ScrollScrubScene({
     const handleLoadedMetadata = () => {
       metadataReadyRef.current = true;
       displayedTimeRef.current = 0;
+      lastIssuedTimeRef.current = -1;
       updateTargetFromScroll();
 
       if (passivePlaybackRef.current) {
@@ -243,7 +250,7 @@ export default function ScrollScrubScene({
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [mediaSources.mov, mediaSources.mp4, mediaSources.webm, shouldLoadVideo]);
+  }, [captions.length, mediaSources.mov, mediaSources.mp4, mediaSources.webm, shouldLoadVideo]);
 
   const textureClass = place?.texture || "water";
   const poster = posterSrc || place?.image;
