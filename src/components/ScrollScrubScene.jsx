@@ -51,6 +51,7 @@ export default function ScrollScrubScene({
   const [videoFailed, setVideoFailed] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
   const [pinState, setPinState] = useState("before");
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
   const mediaSources = useMemo(() => {
     const derived = mediaSourcesFrom(place?.video || mp4Src || webmSrc || movSrc);
@@ -77,6 +78,55 @@ export default function ScrollScrubScene({
   }, []);
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return undefined;
+
+    const updatePinState = () => {
+      const rect = section.getBoundingClientRect();
+      const nextPinState = rect.top > 0 ? "before" : rect.bottom <= window.innerHeight ? "after" : "active";
+      setPinState((current) => (current === nextPinState ? current : nextPinState));
+    };
+
+    if (prefersReducedMotionRef.current) {
+      updatePinState();
+      window.addEventListener("scroll", updatePinState, { passive: true });
+      window.addEventListener("resize", updatePinState);
+
+      return () => {
+        window.removeEventListener("scroll", updatePinState);
+        window.removeEventListener("resize", updatePinState);
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      {
+        root: null,
+        rootMargin: coarsePointerRef.current ? "450px 0px" : "900px 0px",
+        threshold: 0.01,
+      }
+    );
+
+    observer.observe(section);
+    updatePinState();
+    window.addEventListener("scroll", updatePinState, { passive: true });
+    window.addEventListener("resize", updatePinState);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", updatePinState);
+      window.removeEventListener("resize", updatePinState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!shouldLoadVideo) return undefined;
+
     const video = videoRef.current;
     const section = sectionRef.current;
     if (!video || !section) return undefined;
@@ -172,7 +222,7 @@ export default function ScrollScrubScene({
       window.removeEventListener("resize", updateTargetFromScroll);
       cancelAnimationFrame(frameRef.current);
     };
-  }, [mediaSources.mov, mediaSources.mp4, mediaSources.webm]);
+  }, [mediaSources.mov, mediaSources.mp4, mediaSources.webm, shouldLoadVideo]);
 
   const textureClass = place?.texture || "water";
   const poster = posterSrc || place?.image;
@@ -199,14 +249,14 @@ export default function ScrollScrubScene({
           />
         )}
 
-        {!videoFailed && (
+        {shouldLoadVideo && !videoFailed && (
           <video
             key={mediaSources.optimizedMp4 || mediaSources.fallbackMp4 || mediaSources.mov || mediaSources.webm}
             className="scrub-video"
             ref={videoRef}
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             poster={poster}
             onError={() => setVideoFailed(true)}
           >
