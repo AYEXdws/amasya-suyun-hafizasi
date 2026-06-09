@@ -22,7 +22,7 @@ const optimizedVideoSource = (src) => {
   const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
   const narrowViewport = window.matchMedia("(max-width: 760px)").matches;
 
-  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-scrub-720.mp4" : "-scrub-1080.mp4");
+  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-mobile.mp4" : "-scrub-1080.mp4");
 };
 
 export default function ScrollScrubScene({
@@ -76,7 +76,7 @@ export default function ScrollScrubScene({
   useEffect(() => {
     prefersReducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     coarsePointerRef.current = window.matchMedia("(pointer: coarse)").matches;
-    passivePlaybackRef.current = coarsePointerRef.current || prefersReducedMotionRef.current;
+    passivePlaybackRef.current = prefersReducedMotionRef.current;
     setIsTouch(coarsePointerRef.current);
     setIsPassivePlayback(passivePlaybackRef.current);
   }, []);

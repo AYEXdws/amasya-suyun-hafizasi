@@ -37,7 +37,7 @@ const playbackSourcesFor = (video) => {
 
   const useMobileVideo =
     window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(max-width: 760px)").matches;
-  const optimized = video.replace(/\.mp4$/i, useMobileVideo ? "-scrub-720.mp4" : "-scrub-1080.mp4");
+  const optimized = video.replace(/\.mp4$/i, useMobileVideo ? "-mobile.mp4" : "-scrub-1080.mp4");
 
   return optimized === video ? [video] : [optimized, video];
 };
