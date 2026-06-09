@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const lerp = (start, end, amount) => start + (end - start) * amount;
+const isBrowser = typeof window !== "undefined";
 
 const mediaSourcesFrom = (src) => {
   const fallbackBase = "/assets/videos/kral-kaya-hero";
@@ -13,6 +14,15 @@ const mediaSourcesFrom = (src) => {
     mp4: cleanSrc.endsWith(".mp4") ? cleanSrc : `${base}.mp4`,
     webm: cleanSrc.endsWith(".webm") ? cleanSrc : `${base}.webm`,
   };
+};
+
+const optimizedVideoSource = (src) => {
+  if (!src?.endsWith(".mp4") || !isBrowser) return src;
+
+  const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  const narrowViewport = window.matchMedia("(max-width: 760px)").matches;
+
+  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-scrub-720.mp4" : "-scrub-1080.mp4");
 };
 
 export default function ScrollScrubScene({
@@ -32,7 +42,11 @@ export default function ScrollScrubScene({
   const metadataReadyRef = useRef(false);
   const targetTimeRef = useRef(0);
   const displayedTimeRef = useRef(0);
+  const lastSeekAtRef = useRef(0);
+  const lastProgressRef = useRef(-1);
+  const progressBarRef = useRef(null);
   const prefersReducedMotionRef = useRef(false);
+  const coarsePointerRef = useRef(false);
   const [progress, setProgress] = useState(0);
   const [videoFailed, setVideoFailed] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
@@ -40,9 +54,13 @@ export default function ScrollScrubScene({
 
   const mediaSources = useMemo(() => {
     const derived = mediaSourcesFrom(place?.video || mp4Src || webmSrc || movSrc);
+    const optimizedMp4 = optimizedVideoSource(mp4Src || derived.mp4);
+
     return {
       mov: movSrc || derived.mov,
-      mp4: mp4Src || derived.mp4,
+      optimizedMp4,
+      mp4: optimizedMp4,
+      fallbackMp4: mp4Src || derived.mp4,
       webm: webmSrc || derived.webm,
     };
   }, [movSrc, mp4Src, place?.video, webmSrc]);
@@ -54,7 +72,8 @@ export default function ScrollScrubScene({
 
   useEffect(() => {
     prefersReducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setIsTouch(window.matchMedia("(pointer: coarse)").matches);
+    coarsePointerRef.current = window.matchMedia("(pointer: coarse)").matches;
+    setIsTouch(coarsePointerRef.current);
   }, []);
 
   useEffect(() => {
@@ -65,6 +84,8 @@ export default function ScrollScrubScene({
     metadataReadyRef.current = false;
     targetTimeRef.current = 0;
     displayedTimeRef.current = 0;
+    lastSeekAtRef.current = 0;
+    lastProgressRef.current = -1;
     setProgress(0);
     setVideoFailed(false);
 
@@ -73,21 +94,50 @@ export default function ScrollScrubScene({
       const scrollableDistance = section.offsetHeight - window.innerHeight;
       const rawProgress = scrollableDistance <= 0 ? 0 : -rect.top / scrollableDistance;
       const nextProgress = clamp(rawProgress, 0, 1);
-      setProgress(nextProgress);
-      setPinState(rect.top > 0 ? "before" : rect.bottom <= window.innerHeight ? "after" : "active");
+      const nextPinState = rect.top > 0 ? "before" : rect.bottom <= window.innerHeight ? "after" : "active";
+
+      if (progressBarRef.current) {
+        progressBarRef.current.style.transform = `scaleX(${nextProgress})`;
+      }
+
+      if (Math.abs(nextProgress - lastProgressRef.current) > 0.01) {
+        lastProgressRef.current = nextProgress;
+        setProgress(nextProgress);
+      }
+
+      setPinState((current) => (current === nextPinState ? current : nextPinState));
 
       if (metadataReadyRef.current && Number.isFinite(video.duration) && video.duration > 0) {
         targetTimeRef.current = nextProgress * video.duration;
       }
     };
 
-    const animate = () => {
+    const seekVideo = (time) => {
+      if (typeof video.fastSeek === "function" && Math.abs(video.currentTime - time) > 0.55) {
+        video.fastSeek(time);
+        return;
+      }
+
+      video.currentTime = time;
+    };
+
+    const animate = (now = 0) => {
       if (metadataReadyRef.current && !prefersReducedMotionRef.current) {
-        const nextTime = lerp(displayedTimeRef.current, targetTimeRef.current, 0.12);
+        const isCoarse = coarsePointerRef.current;
+        const lerpAmount = isCoarse ? 0.08 : 0.12;
+        const minSeekInterval = isCoarse ? 95 : 48;
+        const seekThreshold = isCoarse ? 0.12 : 0.055;
+        const nextTime = lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
+
         displayedTimeRef.current = nextTime;
 
-        if (Math.abs(video.currentTime - nextTime) > 0.025) {
-          video.currentTime = nextTime;
+        if (
+          now - lastSeekAtRef.current >= minSeekInterval &&
+          Math.abs(video.currentTime - nextTime) > seekThreshold &&
+          !video.seeking
+        ) {
+          lastSeekAtRef.current = now;
+          seekVideo(nextTime);
         }
       }
 
@@ -98,6 +148,7 @@ export default function ScrollScrubScene({
       metadataReadyRef.current = true;
       video.pause();
       video.currentTime = 0;
+      displayedTimeRef.current = 0;
       updateTargetFromScroll();
     };
 
@@ -150,7 +201,7 @@ export default function ScrollScrubScene({
 
         {!videoFailed && (
           <video
-            key={mediaSources.mp4 || mediaSources.mov || mediaSources.webm}
+            key={mediaSources.optimizedMp4 || mediaSources.fallbackMp4 || mediaSources.mov || mediaSources.webm}
             className="scrub-video"
             ref={videoRef}
             muted
@@ -160,7 +211,10 @@ export default function ScrollScrubScene({
             onError={() => setVideoFailed(true)}
           >
             {mediaSources.mov && <source src={mediaSources.mov} type="video/quicktime" />}
-            {mediaSources.mp4 && <source src={mediaSources.mp4} type="video/mp4" />}
+            {mediaSources.optimizedMp4 && <source src={mediaSources.optimizedMp4} type="video/mp4" />}
+            {mediaSources.fallbackMp4 && mediaSources.fallbackMp4 !== mediaSources.optimizedMp4 && (
+              <source src={mediaSources.fallbackMp4} type="video/mp4" />
+            )}
             {mediaSources.webm && <source src={mediaSources.webm} type="video/webm" />}
           </video>
         )}
@@ -174,7 +228,7 @@ export default function ScrollScrubScene({
         <div className="scrub-hint">
           {isTouch ? hintLabels?.touch || "Parmaginla ilerlet" : hintLabels?.desktop || "Kaydirarak ilerle"}
         </div>
-        <div className="scrub-progress" style={{ transform: `scaleX(${progress})` }} />
+        <div className="scrub-progress" ref={progressBarRef} style={{ transform: `scaleX(${progress})` }} />
         {activeCaption?.text && (
           <div className="scrub-caption" key={activeCaption.text}>
             {activeCaption.text}
