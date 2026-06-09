@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/r2/:path*",
-      "destination": "https://pub-19d8728de5cf4128bcce86e23f4fd4e0.r2.dev/:path*"
-    }
-  ]
-}
