@@ -19,10 +19,7 @@ const mediaSourcesFrom = (src) => {
 const optimizedVideoSource = (src) => {
   if (!src?.endsWith(".mp4") || !isBrowser) return src;
 
-  const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-  const narrowViewport = window.matchMedia("(max-width: 760px)").matches;
-
-  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-scrub-720.mp4" : "-scrub-1080.mp4");
+  return src.replace(/\.mp4$/i, "-scrub-1080.mp4");
 };
 
 export default function ScrollScrubScene({
