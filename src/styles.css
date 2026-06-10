@@ -753,6 +753,68 @@ audio {
   transform-origin: left;
 }
 
+/* canvas frame scrub */
+.frame-scrub-section {
+  position: relative;
+  height: 380vh;
+  overscroll-behavior: none;
+  touch-action: pan-y;
+  background: var(--deep);
+}
+
+.frame-scrub-sticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  height: 100vh;
+  min-height: 100vh;
+  height: 100svh;
+  min-height: 100svh;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--deep);
+}
+
+.frame-scrub-canvas,
+.frame-scrub-poster {
+  position: absolute;
+  inset: -5vh 0;
+  inset: -5svh 0;
+  width: 100%;
+  height: 110vh;
+  height: 110svh;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.04);
+  transform-origin: center center;
+  filter: saturate(0.96) contrast(1.04);
+}
+
+.frame-scrub-poster {
+  z-index: 0;
+  transition: opacity 0.35s ease;
+}
+
+.frame-scrub-section.is-ready .frame-scrub-poster {
+  opacity: 0;
+}
+
+.frame-scrub-canvas {
+  z-index: 1;
+  background: var(--deep);
+}
+
+.frame-scrub-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 56% 42%, transparent 0 38%, rgba(3, 8, 10, 0.16) 70%, rgba(3, 8, 10, 0.52) 100%),
+    linear-gradient(180deg, rgba(3, 8, 10, 0.24), transparent 30%, rgba(3, 8, 10, 0.18));
+}
+
 .audio-control {
   margin-top: 0.65rem;
 }

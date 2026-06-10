@@ -9,3 +9,7 @@ export const mediaBaseUrl = trimTrailingSlash(
 export const mediaPath = (type, fileName) => {
   return `${mediaBaseUrl}/${type}/${encodeURIComponent(fileName)}`;
 };
+
+export const mediaAssetPath = (...segments) => {
+  return `${mediaBaseUrl}/${segments.map((segment) => encodeURIComponent(segment)).join("/")}`;
+};

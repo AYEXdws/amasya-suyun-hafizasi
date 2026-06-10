@@ -10,9 +10,10 @@ import {
   useParams,
 } from "react-router-dom";
 import AudioController from "./components/AudioController";
+import FrameScrubScene from "./components/FrameScrubScene";
 import InteractiveStory from "./components/InteractiveStory";
 import ScrollScrubScene from "./components/ScrollScrubScene";
-import { mediaPath } from "./data/media";
+import { mediaAssetPath, mediaPath } from "./data/media";
 import { heroAssets } from "./data/stops";
 import {
   dayRouteIds,
@@ -157,9 +158,10 @@ function HomePage({ locale }) {
           </Link>
         </div>
       </CinematicScene>
-      <ScrollScrubScene
+      <FrameScrubScene
         className="home-scrub"
-        mp4Src={mediaPath("videos", "manzara-yavas-cekim.mp4")}
+        frameBaseUrl={mediaAssetPath("frames", "manzara-yavas-cekim")}
+        frameCount={202}
         posterSrc={mediaPath("images", "manzara-yavas-cekim.jpg")}
         hintLabels={copy.scrub}
       />
