@@ -373,6 +373,12 @@ function AppRoutes() {
   const [journey, setJourney] = useState([]);
   const [locale, setLocale] = useState("tr");
 
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.documentElement.setAttribute("translate", "no");
+    document.body.setAttribute("translate", "no");
+  }, [locale]);
+
   const addToJourney = (id) => {
     setJourney((current) => (current.includes(id) ? current : [...current, id]));
   };

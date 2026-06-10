@@ -38,6 +38,9 @@ html {
   overscroll-behavior-x: none;
   overscroll-behavior-y: none;
   background: var(--deep);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: pan-y;
 }
 
 body {
@@ -46,6 +49,11 @@ body {
   overscroll-behavior-x: none;
   overscroll-behavior-y: none;
   background: var(--deep);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 a {
@@ -58,6 +66,31 @@ button {
   color: inherit;
   cursor: pointer;
   font: inherit;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+a,
+summary,
+.scene-button,
+.story-choices button,
+.language-toggle button,
+.audio-control button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+p,
+h1,
+h2,
+h3,
+span,
+small,
+strong,
+em {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 h1,
