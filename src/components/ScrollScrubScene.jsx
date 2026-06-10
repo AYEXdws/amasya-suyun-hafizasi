@@ -2,8 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const lerp = (start, end, amount) => start + (end - start) * amount;
-const isBrowser = typeof window !== "undefined";
-
 const mediaSourcesFrom = (src) => {
   const fallbackBase = "/assets/videos/kral-kaya-hero";
   const cleanSrc = src || `${fallbackBase}.mov`;
@@ -17,9 +15,7 @@ const mediaSourcesFrom = (src) => {
 };
 
 const optimizedVideoSource = (src) => {
-  if (!src?.endsWith(".mp4") || !isBrowser) return src;
-
-  return src.replace(/\.mp4$/i, "-scrub-hq-1080.mp4");
+  return src;
 };
 
 export default function ScrollScrubScene({
@@ -50,21 +46,22 @@ export default function ScrollScrubScene({
   const [videoFailed, setVideoFailed] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
   const [pinState, setPinState] = useState("before");
+  const [useMobileVideo, setUseMobileVideo] = useState(false);
 
   const mediaSources = useMemo(() => {
-    const derived = mediaSourcesFrom(place?.video || mp4Src || webmSrc || movSrc);
+    const activePlaceVideo = useMobileVideo && place?.mobileVideo ? place.mobileVideo : place?.video;
+    const derived = mediaSourcesFrom(activePlaceVideo || mp4Src || webmSrc || movSrc);
     const optimizedMp4 = optimizedVideoSource(mp4Src || derived.mp4);
-    const fallbackScrubMp4 = (mp4Src || derived.mp4)?.replace(/\.mp4$/i, "-scrub-1080.mp4");
 
     return {
       mov: movSrc || derived.mov,
       optimizedMp4,
       mp4: optimizedMp4,
-      fallbackScrubMp4,
+      fallbackScrubMp4: null,
       fallbackMp4: mp4Src || derived.mp4,
       webm: webmSrc || derived.webm,
     };
-  }, [movSrc, mp4Src, place?.video, webmSrc]);
+  }, [movSrc, mp4Src, place?.mobileVideo, place?.video, useMobileVideo, webmSrc]);
 
   const activeCaption = useMemo(
     () => captions.find((caption) => progress >= caption.start && progress <= caption.end),
@@ -73,10 +70,18 @@ export default function ScrollScrubScene({
 
   useEffect(() => {
     prefersReducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    coarsePointerRef.current = window.matchMedia("(pointer: coarse)").matches;
+    const coarseQuery = window.matchMedia("(pointer: coarse)");
+    const mobileVideoQuery = window.matchMedia("(max-width: 760px), (pointer: coarse)");
+    const syncMobileVideo = () => setUseMobileVideo(mobileVideoQuery.matches);
+
+    coarsePointerRef.current = coarseQuery.matches;
     viewportHeightRef.current = Math.round(window.visualViewport?.height || window.innerHeight);
     viewportWidthRef.current = window.innerWidth;
     setIsTouch(coarsePointerRef.current);
+    syncMobileVideo();
+
+    mobileVideoQuery.addEventListener("change", syncMobileVideo);
+    return () => mobileVideoQuery.removeEventListener("change", syncMobileVideo);
   }, []);
 
   useEffect(() => {

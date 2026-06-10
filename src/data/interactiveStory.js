@@ -172,7 +172,7 @@ export const storyNodes = [
   },
   {
     id: "bridge-view",
-    placeId: "gece-amasya",
+    placeId: "kisin-amasya",
     clue: { tr: "Dogru hiza", en: "The right alignment" },
     copy: {
       tr: {
@@ -188,7 +188,7 @@ export const storyNodes = [
         localLine: "Kopruler burada yalniz gecis degil, bakis yeridir.",
         choices: [
           { label: "Kral Kaya'ya yonel", nextId: "rock-first" },
-          { label: "Geceyi bekle", nextId: "night-river" },
+          { label: "Kis manzarasina bak", nextId: "night-river" },
         ],
       },
       en: {
@@ -204,7 +204,7 @@ export const storyNodes = [
         localLine: "Bridges here are not only crossings; they are viewing points.",
         choices: [
           { label: "Head to the rock tombs", nextId: "rock-first" },
-          { label: "Wait for night", nextId: "night-river" },
+          { label: "Look at the winter view", nextId: "night-river" },
         ],
       },
     },
@@ -304,7 +304,7 @@ export const storyNodes = [
           "Amasya Kalesi, Harşena Dagi uzerinde yer alir ve Yeşilirmak vadisini genis aciyla gorur.",
         localLine: "Gunes batimina yakin cikarsan donuste isiklar yanmaya baslar.",
         choices: [
-          { label: "Gece kiyisina don", nextId: "night-river" },
+          { label: "Kis manzarasina don", nextId: "night-river" },
           { label: "Avluya in", nextId: "sehzade-courtyard" },
         ],
       },
@@ -320,7 +320,7 @@ export const storyNodes = [
           "Amasya Castle stands on Mount Harşena and opens a wide view over the Yeşilirmak valley.",
         localLine: "If you climb near sunset, the lights begin to turn on as you return.",
         choices: [
-          { label: "Return to the night bank", nextId: "night-river" },
+          { label: "Return to the winter view", nextId: "night-river" },
           { label: "Go down to the courtyard", nextId: "sehzade-courtyard" },
         ],
       },
@@ -383,7 +383,7 @@ export const storyNodes = [
         localLine: "Bu bolumu merkez icinde baglantili bir rota gibi gez.",
         choices: [
           { label: "Eski sokaklara gir", nextId: "streets" },
-          { label: "Gece kiyisina don", nextId: "night-river" },
+          { label: "Kis manzarasina don", nextId: "night-river" },
         ],
       },
       en: {
@@ -399,7 +399,7 @@ export const storyNodes = [
         localLine: "Walk this part as a connected route through the centre.",
         choices: [
           { label: "Enter the old streets", nextId: "streets" },
-          { label: "Return to the night bank", nextId: "night-river" },
+          { label: "Return to the winter view", nextId: "night-river" },
         ],
       },
     },
@@ -422,7 +422,7 @@ export const storyNodes = [
         localLine: "Yan sokaklara kisa sapmalar yapmak iyi sonuc verir.",
         choices: [
           { label: "Bugunun sehrine bak", nextId: "daily-life" },
-          { label: "Gece kiyisina don", nextId: "night-river" },
+          { label: "Kis manzarasina don", nextId: "night-river" },
         ],
       },
       en: {
@@ -438,7 +438,7 @@ export const storyNodes = [
         localLine: "Brief turns into side streets often lead to better views.",
         choices: [
           { label: "Look at today's city", nextId: "daily-life" },
-          { label: "Return to the night bank", nextId: "night-river" },
+          { label: "Return to the winter view", nextId: "night-river" },
         ],
       },
     },
@@ -460,7 +460,7 @@ export const storyNodes = [
           "Amasya'nin merkezinde tarihî doku ile gundelik hayat ic ice surer.",
         localLine: "Bir yerde oturup etrafa bakmak bazen yuruyusten daha iyi gelir.",
         choices: [
-          { label: "Gece kiyisina don", nextId: "night-river" },
+          { label: "Kis manzarasina don", nextId: "night-river" },
           { label: "Sehir disina cik", nextId: "borabay" },
         ],
       },
@@ -476,7 +476,7 @@ export const storyNodes = [
           "In central Amasya, historic fabric and daily life continue together.",
         localLine: "Sitting down and watching can be better than walking.",
         choices: [
-          { label: "Return to the night bank", nextId: "night-river" },
+          { label: "Return to the winter view", nextId: "night-river" },
           { label: "Leave the centre", nextId: "borabay" },
         ],
       },
@@ -500,7 +500,7 @@ export const storyNodes = [
         localLine: "Gol kenari hizli gecilecek bir yer degil.",
         choices: [
           { label: "Ferhat yoluna don", nextId: "ferhat" },
-          { label: "Gece kiyisina don", nextId: "night-river" },
+          { label: "Kis manzarasina don", nextId: "night-river" },
         ],
       },
       en: {
@@ -516,7 +516,7 @@ export const storyNodes = [
         localLine: "The lakeside should not be passed too quickly.",
         choices: [
           { label: "Return to Ferhat's route", nextId: "ferhat" },
-          { label: "Return to the night bank", nextId: "night-river" },
+          { label: "Return to the winter view", nextId: "night-river" },
         ],
       },
     },
@@ -538,7 +538,7 @@ export const storyNodes = [
           "Ferhat ile Şirin anlatisi Amasya'da su yolu ve kaya ile birlikte anilir.",
         localLine: "Kayaya ve yolun yonune dikkat et; hikaye orada guclenir.",
         choices: [
-          { label: "Gece kiyisina don", nextId: "night-river" },
+          { label: "Kis manzarasina don", nextId: "night-river" },
           { label: "Defteri kapat", nextId: "final" },
         ],
       },
@@ -554,7 +554,7 @@ export const storyNodes = [
           "In Amasya, the tale of Ferhat and Şirin is remembered together with a water channel and rock.",
         localLine: "Watch the rock and the direction of the path; the story gains force there.",
         choices: [
-          { label: "Return to the night bank", nextId: "night-river" },
+          { label: "Return to the winter view", nextId: "night-river" },
           { label: "Close the notebook", nextId: "final" },
         ],
       },
@@ -562,36 +562,36 @@ export const storyNodes = [
   },
   {
     id: "night-river",
-    placeId: "gece-amasya",
-    clue: { tr: "Gece yansimasi", en: "Night reflection" },
+    placeId: "kisin-amasya",
+    clue: { tr: "Kis manzarasi", en: "Winter view" },
     copy: {
       tr: {
-        title: "Gece Kiyisi",
-        kicker: "Isiklar yaninca",
+        title: "Kis Manzarasi",
+        kicker: "Hava acikken",
         text: [
-          "Gece olunca fotograf degismis gibi durur.",
-          "Evlerin isigi suya duser, kaya karanlikta daha buyuk gorunur.",
-          "Aradigin yerin tek bir nokta degil, butun bu hizalar oldugunu anlarsin.",
+          "Kis isiginda fotograf daha az kalabalik gorunur.",
+          "Nehir, evler ve kaya daha net ayrilir.",
+          "Amasya'nin gucu bazen suslu bir anda degil, temiz bir havada ortaya cikar.",
         ],
         fact:
-          "Gece Amasya'da Yeşilirmak yansimalari, Yaliboyu isiklari ve kaya silueti birlikte gorunur.",
-        localLine: "Kiyida bir kac dakika durmak manzarayi yerine oturtur.",
+          "Kis aylarinda acik hava, Harşena yamacini ve Yeşilirmak hattini daha belirgin gosterebilir.",
+        localLine: "Yuksekten bakinca vadinin dar ve guclu yapisi daha kolay okunur.",
         choices: [
           { label: "Defteri kapat", nextId: "final" },
           { label: "Son kez kopruye cik", nextId: "bridge-view" },
         ],
       },
       en: {
-        title: "Night Bank",
-        kicker: "When the lights turn on",
+        title: "Winter View",
+        kicker: "When the air is clear",
         text: [
-          "At night, the photograph seems to change.",
-          "House lights fall onto the water, and the rock looks larger in the dark.",
-          "You understand that the place you searched for was not one point, but all these alignments.",
+          "In winter light, the photograph feels less crowded.",
+          "The river, houses and rock separate more clearly.",
+          "Amasya's strength sometimes appears not in drama, but in clean air.",
         ],
         fact:
-          "At night in Amasya, Yeşilirmak reflections, Yaliboyu lights and the rock silhouette appear together.",
-        localLine: "A few minutes by the water lets the view settle.",
+          "In winter, clear weather can make the Harşena slope and Yeşilirmak line more visible.",
+        localLine: "From higher ground, the valley's tight structure is easier to read.",
         choices: [
           { label: "Close the notebook", nextId: "final" },
           { label: "Step onto the bridge once more", nextId: "bridge-view" },
@@ -601,7 +601,7 @@ export const storyNodes = [
   },
   {
     id: "final",
-    placeId: "gece-amasya",
+    placeId: "kisin-amasya",
     clue: { tr: "Tamamlanan defter", en: "Completed notebook" },
     copy: {
       tr: {
@@ -609,7 +609,7 @@ export const storyNodes = [
         kicker: "Amasya'yi anlamak",
         text: [
           "Fotograftaki yer tek bir nokta degildi.",
-          "Irmak, evler, kaya, avlu, sokak ve gece ayni sehirde birlesiyordu.",
+          "Irmak, evler, kaya, avlu, sokak ve kis manzarasi ayni sehirde birlesiyordu.",
           "Amasya'yi buldugunu sandigin anda, onu daha sakin hatirlamaya basladin.",
         ],
         fact:
@@ -622,7 +622,7 @@ export const storyNodes = [
         kicker: "Understanding Amasya",
         text: [
           "The place in the photograph was not a single point.",
-          "River, houses, rock, courtyard, street and night belonged to the same city.",
+          "River, houses, rock, courtyard, street and winter view belonged to the same city.",
           "Just when you thought you had found Amasya, you began to remember it more calmly.",
         ],
         fact:

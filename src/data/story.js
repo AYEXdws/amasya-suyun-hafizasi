@@ -134,7 +134,7 @@ export const dayRouteIds = [
   "kral-kaya",
   "harsena",
   "amasya-kalesi",
-  "gece-amasya",
+  "kisin-amasya",
   "eski-sokaklar",
   "amasya-yasam",
   "borabay",
@@ -147,6 +147,7 @@ export const places = [
     texture: "water",
     image: assetPath("images", "yesilirmak.jpg"),
     video: assetPath("videos", "yesilirmak.mp4"),
+    mobileVideo: assetPath("videos", "yesil-irmak-9-16.mp4"),
     ambientSound: assetPath("sounds", "yesilirmak.mp3"),
     soundHint: {
       tr: "Hafif nehir akisi, uzak sehir sesi.",
@@ -180,6 +181,7 @@ export const places = [
     texture: "wood",
     image: assetPath("images", "yaliboyu.jpg"),
     video: assetPath("videos", "yaliboyu.mp4"),
+    mobileVideo: assetPath("videos", "yaliboyu-9-16.mp4"),
     ambientSound: assetPath("sounds", "yaliboyu.mp3"),
     soundHint: {
       tr: "Su kiyisi, hafif ayak sesi, uzaktan insan sesi.",
@@ -212,7 +214,8 @@ export const places = [
     id: "sehzadeler",
     texture: "paper",
     image: assetPath("images", "sehzadeler.jpg"),
-    video: assetPath("videos", "amasya-ustcekim-hızlı.mp4"),
+    video: assetPath("videos", "bayezid-kulliyesi.mp4"),
+    mobileVideo: assetPath("videos", "bayezid-kulliyesi-9-16.mp4"),
     ambientSound: assetPath("sounds", "sehzadeler.mp3"),
     soundHint: {
       tr: "Avlu/medrese ambiyansi, dusuk sehir sesi.",
@@ -246,6 +249,7 @@ export const places = [
     texture: "paper",
     image: assetPath("images", "bayezid-kulliyesi.jpg"),
     video: assetPath("videos", "bayezid-kulliyesi.mp4"),
+    mobileVideo: assetPath("videos", "bayezid-kulliyesi-9-16.mp4"),
     ambientSound: assetPath("sounds", "bayezid-kulliyesi.mp3"),
     soundHint: {
       tr: "Avlu sessizligi, hafif kus, tas mekanda yankı.",
@@ -278,7 +282,8 @@ export const places = [
     id: "kral-kaya",
     texture: "stone",
     image: assetPath("images", "kral-kaya.jpg"),
-    video: assetPath("videos", "kral-kaya-1.30dk-yavas-cekim.mp4"),
+    video: assetPath("videos", "kral-kaya.mp4"),
+    mobileVideo: assetPath("videos", "kral-kaya-9-16.mp4"),
     ambientSound: assetPath("sounds", "kral-kaya.mp3"),
     soundHint: {
       tr: "Dusuk ruzgar, taslik alan ambiyansi.",
@@ -312,6 +317,7 @@ export const places = [
     texture: "stone",
     image: assetPath("images", "harsena.jpg"),
     video: assetPath("videos", "harsena.mp4"),
+    mobileVideo: assetPath("videos", "harsena-9-16.mp4"),
     ambientSound: assetPath("sounds", "harsena.mp3"),
     soundHint: {
       tr: "Yuksek noktada ruzgar, genis alan hissi.",
@@ -345,6 +351,7 @@ export const places = [
     texture: "night",
     image: assetPath("images", "amasya-kalesi.jpg"),
     video: assetPath("videos", "amasya-kalesi.mp4"),
+    mobileVideo: assetPath("videos", "amasya-kalesi-9-16.mp4"),
     ambientSound: assetPath("sounds", "amasya-kalesi.mp3"),
     soundHint: {
       tr: "Ruzgar, uzak kus ve sehir ugultusu.",
@@ -359,7 +366,7 @@ export const places = [
         description:
           "Amasya Kalesi Harşena Dagi uzerindedir. Yukaridan nehir kivrimi, Yaliboyu ve eski sehir dokusu birlikte gorunur.",
         tip: "Gunes batmadan cik. Donuste sehir isiklari yavas yavas yanmaya baslar.",
-        next: [{ label: "Geceyi bekle", nextId: "gece-amasya" }],
+        next: [{ label: "Kis manzarasina in", nextId: "kisin-amasya" }],
       },
       en: {
         name: "Amasya Castle",
@@ -369,39 +376,40 @@ export const places = [
         description:
           "Amasya Castle stands on Mount Harşena. From above, the river bend, Yaliboyu and old town fabric appear together.",
         tip: "Go up before sunset. On the way back, the lights begin to mark the town.",
-        next: [{ label: "Wait for night", nextId: "gece-amasya" }],
+        next: [{ label: "Move to the winter view", nextId: "kisin-amasya" }],
       },
     },
   },
   {
-    id: "gece-amasya",
-    texture: "night",
-    image: assetPath("images", "gece-amasya.jpg"),
-    video: assetPath("videos", "gece-amasya.mp4"),
-    ambientSound: assetPath("sounds", "gece-amasya.mp3"),
+    id: "kisin-amasya",
+    texture: "forest",
+    image: assetPath("images", "amasya-kisin.jpg"),
+    video: assetPath("videos", "amasya-kisin.mp4"),
+    mobileVideo: assetPath("videos", "amasya-kisin-9-16.mp4"),
+    ambientSound: assetPath("sounds", "amasya-kisin.mp3"),
     soundHint: {
-      tr: "Gece kiyisi, su, uzak trafik ve sehir ugultusu.",
-      en: "Night riverside, water, distant traffic and town hum.",
+      tr: "Soguk hava, hafif ruzgar, uzak sehir sesi.",
+      en: "Cold air, light wind and a distant town bed.",
     },
     copy: {
       tr: {
-        name: "Gece Amasya",
-        eyebrow: "Isik ve su",
+        name: "Kisin Amasya",
+        eyebrow: "Soguk hava, acik siluet",
         sceneLine:
-          "Gece olunca Yaliboyu isiklari suya iner; kaya bu kez karanlikta buyur.",
+          "Kis isiginda Amasya daha sade gorunur; kaya, nehir ve evler ayni cizgide kalir.",
         description:
-          "Gece Amasya'da nehir kiyisi, ev isiklari ve kaya silueti birlikte gorunur. Gunduz kalabaligi azalinca sehrin cizgisi sadeleşir.",
-        tip: "Kiyida biraz bekle. Isiklar suya oturdugunda manzara daha sakin gorunur.",
+          "Kis aylarinda sehir daha sakin bir yuz gosterir. Soguk hava Harşena'yi, Yaliboyu'nu ve nehir hattini daha temiz okutabilir.",
+        tip: "Hava aciksa yuksekten bak. Kis manzarasi Amasya'nin vadideki yerini daha net gosterir.",
         next: [{ label: "Sokaklara in", nextId: "eski-sokaklar" }],
       },
       en: {
-        name: "Amasya at Night",
-        eyebrow: "Light and water",
+        name: "Amasya in Winter",
+        eyebrow: "Cold air, clear silhouette",
         sceneLine:
-          "At night the Yaliboyu lights fall onto the river, and the rock grows darker above them.",
+          "In winter light, Amasya looks simpler; rock, river and houses stay on the same line.",
         description:
-          "At night, the riverside, house lights and rock silhouette appear together. With the daytime crowd gone, the city line becomes simpler.",
-        tip: "Stay by the water for a moment. The view settles when the lights settle on the river.",
+          "In winter, the city often shows a calmer face. Clear cold air can make Harşena, Yaliboyu and the river line easier to read.",
+        tip: "If the weather is clear, look from higher ground. Winter makes Amasya's valley position more visible.",
         next: [{ label: "Enter the streets", nextId: "eski-sokaklar" }],
       },
     },
@@ -410,7 +418,8 @@ export const places = [
     id: "eski-sokaklar",
     texture: "wood",
     image: assetPath("images", "eski-sokaklar.jpg"),
-    video: assetPath("videos", "yaliboyu2.mp4"),
+    video: assetPath("videos", "eskı-sokaklar.mp4"),
+    mobileVideo: assetPath("videos", "eski-sokaklar-9-16.mp4"),
     ambientSound: assetPath("sounds", "eski-sokaklar.mp3"),
     soundHint: {
       tr: "Dar sokak, ayak sesi, kapi ve uzaktan konusma.",
@@ -443,7 +452,8 @@ export const places = [
     id: "amasya-yasam",
     texture: "paper",
     image: assetPath("images", "amasya-yasam.jpg"),
-    video: assetPath("videos", "amasya-karsık-manzara-karma.mp4"),
+    video: assetPath("videos", "cınematık-karısık-manzara-amasya.mp4"),
+    mobileVideo: assetPath("videos", "sinemattik-cekim-9-16.mp4"),
     ambientSound: assetPath("sounds", "amasya-yasam.mp3"),
     soundHint: {
       tr: "Carsi, kiyı yuruyusu ve gundelik sehir sesi.",
@@ -477,6 +487,7 @@ export const places = [
     texture: "forest",
     image: assetPath("images", "borabay.jpg"),
     video: assetPath("videos", "borabay.mp4"),
+    mobileVideo: assetPath("videos", "borabay-9-16.mp4"),
     ambientSound: assetPath("sounds", "borabay.mp3"),
     soundHint: {
       tr: "Gol, orman, kus ve hafif ruzgar.",
@@ -510,6 +521,7 @@ export const places = [
     texture: "road",
     image: assetPath("images", "ferhat-sirin.jpg"),
     video: assetPath("videos", "ferhat-sirin.mp4"),
+    mobileVideo: assetPath("videos", "ferhat-sirin-9-16.mp4"),
     ambientSound: assetPath("sounds", "ferhat-sirin.mp3"),
     soundHint: {
       tr: "Ruzgar, tas/yol ambiyansi, cok dusuk su hissi.",

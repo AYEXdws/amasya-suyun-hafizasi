@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   getClue,
   getStoryCopy,
@@ -11,6 +11,21 @@ import { placeMap } from "../data/story";
 
 const unique = (items) => [...new Set(items.filter(Boolean))];
 
+function useMobileMediaQuery() {
+  const [isMobileMedia, setIsMobileMedia] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 760px), (pointer: coarse)");
+    const sync = () => setIsMobileMedia(query.matches);
+
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  return isMobileMedia;
+}
+
 export default function InteractiveStory({ locale = "tr" }) {
   const [nodeId, setNodeId] = useState(storyStartId);
   const [notebook, setNotebook] = useState([]);
@@ -19,6 +34,8 @@ export default function InteractiveStory({ locale = "tr" }) {
   const copy = getStoryCopy(node, locale);
   const ui = storyUi[locale] || storyUi.tr;
   const place = placeMap[node.placeId] || placeMap.yesilirmak;
+  const isMobileMedia = useMobileMediaQuery();
+  const activeVideo = isMobileMedia && place.mobileVideo ? place.mobileVideo : place.video;
   const isFinal = node.id === "final";
 
   const collected = useMemo(() => unique(notebook), [notebook]);
@@ -41,10 +58,10 @@ export default function InteractiveStory({ locale = "tr" }) {
   return (
     <motion.main className={`interactive-story ${place.texture}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="interactive-media" aria-hidden="true">
-        {place.video && (
+        {activeVideo && (
           <video
-            key={place.video}
-            src={place.video}
+            key={activeVideo}
+            src={activeVideo}
             autoPlay
             muted
             loop

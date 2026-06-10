@@ -31,7 +31,25 @@ const pageMotion = {
   transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] },
 };
 
-function SceneMedia({ image, video, eager = false }) {
+function useMobileMediaQuery() {
+  const [isMobileMedia, setIsMobileMedia] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 760px), (pointer: coarse)");
+    const sync = () => setIsMobileMedia(query.matches);
+
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  return isMobileMedia;
+}
+
+function SceneMedia({ image, video, mobileVideo, eager = false }) {
+  const isMobileMedia = useMobileMediaQuery();
+  const activeVideo = isMobileMedia && mobileVideo ? mobileVideo : video;
+
   return (
     <div className="scene-media" aria-hidden="true">
       {image && (
@@ -44,9 +62,10 @@ function SceneMedia({ image, video, eager = false }) {
           }}
         />
       )}
-      {video && (
+      {activeVideo && (
         <video
-          src={video}
+          key={activeVideo}
+          src={activeVideo}
           poster={image}
           autoPlay
           muted
@@ -66,6 +85,7 @@ function CinematicScene({
   texture = "water",
   image,
   video,
+  mobileVideo,
   eyebrow,
   title,
   subtitle,
@@ -75,7 +95,7 @@ function CinematicScene({
 }) {
   return (
     <motion.main className={`scene ${texture} ${align}`} {...pageMotion}>
-      <SceneMedia image={image} video={video} eager={eager} />
+      <SceneMedia image={image} video={video} mobileVideo={mobileVideo} eager={eager} />
       <div className="scene-vignette" aria-hidden="true" />
       <div className="scene-light" aria-hidden="true" />
       <div className="scene-grain" aria-hidden="true" />
@@ -141,6 +161,7 @@ function HomePage({ locale }) {
         texture="water"
         image={heroAssets.heroImage}
         video={heroAssets.heroVideo}
+        mobileVideo={heroAssets.heroMobileVideo}
         eyebrow={copy.home.eyebrow}
         title={copy.home.title}
         subtitle={copy.home.subtitle}
