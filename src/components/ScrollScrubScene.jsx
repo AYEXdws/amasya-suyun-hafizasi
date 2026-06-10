@@ -42,6 +42,8 @@ export default function ScrollScrubScene({
   const lastSeekAtRef = useRef(0);
   const lastProgressRef = useRef(-1);
   const progressBarRef = useRef(null);
+  const viewportHeightRef = useRef(0);
+  const viewportWidthRef = useRef(0);
   const prefersReducedMotionRef = useRef(false);
   const coarsePointerRef = useRef(false);
   const [progress, setProgress] = useState(0);
@@ -72,6 +74,8 @@ export default function ScrollScrubScene({
   useEffect(() => {
     prefersReducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     coarsePointerRef.current = window.matchMedia("(pointer: coarse)").matches;
+    viewportHeightRef.current = Math.round(window.visualViewport?.height || window.innerHeight);
+    viewportWidthRef.current = window.innerWidth;
     setIsTouch(coarsePointerRef.current);
   }, []);
 
@@ -88,12 +92,23 @@ export default function ScrollScrubScene({
     setProgress(0);
     setVideoFailed(false);
 
+    const getStableViewportHeight = () => viewportHeightRef.current || window.innerHeight;
+
+    const updateStableViewport = () => {
+      const nextWidth = window.innerWidth;
+      if (Math.abs(nextWidth - viewportWidthRef.current) > 32) {
+        viewportWidthRef.current = nextWidth;
+        viewportHeightRef.current = Math.round(window.visualViewport?.height || window.innerHeight);
+      }
+    };
+
     const updateTargetFromScroll = () => {
       const rect = section.getBoundingClientRect();
-      const scrollableDistance = section.offsetHeight - window.innerHeight;
+      const viewportHeight = getStableViewportHeight();
+      const scrollableDistance = section.offsetHeight - viewportHeight;
       const rawProgress = scrollableDistance <= 0 ? 0 : -rect.top / scrollableDistance;
       const nextProgress = clamp(rawProgress, 0, 1);
-      const nextPinState = rect.top > 0 ? "before" : rect.bottom <= window.innerHeight ? "after" : "active";
+      const nextPinState = rect.top > 0 ? "before" : rect.bottom <= viewportHeight ? "after" : "active";
 
       if (progressBarRef.current) {
         progressBarRef.current.style.transform = `scaleX(${nextProgress})`;
@@ -159,10 +174,15 @@ export default function ScrollScrubScene({
       setVideoFailed(true);
     };
 
+    const handleResize = () => {
+      updateStableViewport();
+      updateTargetFromScroll();
+    };
+
     video.addEventListener("loadedmetadata", handleLoadedMetadata);
     video.addEventListener("error", handleError);
     window.addEventListener("scroll", updateTargetFromScroll, { passive: true });
-    window.addEventListener("resize", updateTargetFromScroll);
+    window.addEventListener("resize", handleResize);
 
     video.load();
     updateTargetFromScroll();
@@ -172,7 +192,7 @@ export default function ScrollScrubScene({
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
       video.removeEventListener("error", handleError);
       window.removeEventListener("scroll", updateTargetFromScroll);
-      window.removeEventListener("resize", updateTargetFromScroll);
+      window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(frameRef.current);
     };
   }, [mediaSources.mov, mediaSources.mp4, mediaSources.webm]);

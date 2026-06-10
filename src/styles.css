@@ -35,12 +35,16 @@ body,
 
 html {
   overflow-x: hidden;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
   background: var(--deep);
 }
 
 body {
   margin: 0;
   overflow-x: hidden;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
   background: var(--deep);
 }
 
@@ -497,6 +501,8 @@ audio {
 .scrub-section {
   position: relative;
   height: 380vh;
+  overscroll-behavior: none;
+  touch-action: pan-y;
   background: var(--deep);
 }
 
@@ -504,8 +510,10 @@ audio {
   position: sticky;
   top: 0;
   display: grid;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100vh;
+  min-height: 100vh;
+  height: 100svh;
+  min-height: 100svh;
   place-items: center;
   overflow: hidden;
   isolation: isolate;
@@ -517,10 +525,12 @@ audio {
 .scrub-poster,
 .scrub-placeholder {
   position: absolute;
-  inset: -1dvh 0;
+  inset: -5vh 0;
+  inset: -5svh 0;
   z-index: 0;
   width: 100%;
-  height: 102dvh;
+  height: 110vh;
+  height: 110svh;
   max-width: none;
 }
 
@@ -613,7 +623,8 @@ audio {
   left: clamp(1rem, 6vw, 7rem);
   z-index: 4;
   max-width: min(520px, 31vw);
-  max-height: calc(100dvh - 8.5rem);
+  max-height: calc(100vh - 8.5rem);
+  max-height: calc(100svh - 8.5rem);
   color: var(--ink);
   text-shadow: 0 18px 65px rgba(0, 0, 0, 0.72);
 }
@@ -693,8 +704,10 @@ audio {
 .route-page .scrub-sticky {
   position: fixed;
   inset: 0;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100vh;
+  min-height: 100vh;
+  height: 100svh;
+  min-height: 100svh;
 }
 
 .home-scrub .scrub-sticky {
@@ -828,7 +841,8 @@ audio {
 /* interactive experience */
 .interactive-story {
   position: relative;
-  min-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
   overflow: hidden;
   isolation: isolate;
   background: var(--deep);
@@ -873,7 +887,8 @@ audio {
   position: relative;
   z-index: 2;
   display: grid;
-  min-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
   width: min(720px, calc(100% - 2rem));
   align-content: end;
   padding: 7.4rem 0 clamp(2rem, 7vh, 4.5rem);
@@ -1160,16 +1175,20 @@ audio {
 
   .scrub-sticky,
   .route-page .scrub-sticky {
-    height: 100dvh;
-    min-height: 100dvh;
+    height: 100vh;
+    min-height: 100vh;
+    height: 100svh;
+    min-height: 100svh;
     --scrub-video-scale: 1.02;
   }
 
   .scrub-video,
   .scrub-poster,
   .scrub-placeholder {
-    inset: -2dvh 0;
-    height: 104dvh;
+    inset: -6vh 0;
+    inset: -6svh 0;
+    height: 112vh;
+    height: 112svh;
   }
 
   .scrub-overlay {
@@ -1196,7 +1215,8 @@ audio {
     bottom: max(0.9rem, calc(env(safe-area-inset-bottom) + 0.45rem));
     left: 1rem;
     max-width: none;
-    max-height: 52dvh;
+    max-height: 52vh;
+    max-height: 52svh;
   }
 
   .scrub-content::before {
@@ -1303,7 +1323,8 @@ audio {
 
   .interactive-panel {
     width: calc(100% - 2rem);
-    min-height: 100dvh;
+    min-height: 100vh;
+    min-height: 100svh;
     padding: 6.8rem 0 1.2rem;
     margin: 0 auto;
   }
@@ -1399,7 +1420,8 @@ audio {
 
   .scrub-content {
     bottom: max(0.7rem, calc(env(safe-area-inset-bottom) + 0.34rem));
-    max-height: 54dvh;
+    max-height: 54vh;
+    max-height: 54svh;
   }
 
   .scrub-content h1 {
