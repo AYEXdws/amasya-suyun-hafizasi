@@ -715,11 +715,25 @@ audio {
   inset: 0;
 }
 
+.home-scrub .frame-scrub-sticky {
+  position: absolute;
+  inset: 0;
+}
+
 .home-scrub.is-active .scrub-sticky {
   position: fixed;
 }
 
+.home-scrub.is-active .frame-scrub-sticky {
+  position: fixed;
+}
+
 .home-scrub.is-after .scrub-sticky {
+  top: auto;
+  bottom: 0;
+}
+
+.home-scrub.is-after .frame-scrub-sticky {
   top: auto;
   bottom: 0;
 }
