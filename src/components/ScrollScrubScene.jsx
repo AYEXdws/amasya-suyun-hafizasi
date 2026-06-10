@@ -19,7 +19,7 @@ const mediaSourcesFrom = (src) => {
 const optimizedVideoSource = (src) => {
   if (!src?.endsWith(".mp4") || !isBrowser) return src;
 
-  return src.replace(/\.mp4$/i, "-scrub-1080.mp4");
+  return src.replace(/\.mp4$/i, "-scrub-hq-1080.mp4");
 };
 
 export default function ScrollScrubScene({
@@ -52,11 +52,13 @@ export default function ScrollScrubScene({
   const mediaSources = useMemo(() => {
     const derived = mediaSourcesFrom(place?.video || mp4Src || webmSrc || movSrc);
     const optimizedMp4 = optimizedVideoSource(mp4Src || derived.mp4);
+    const fallbackScrubMp4 = (mp4Src || derived.mp4)?.replace(/\.mp4$/i, "-scrub-1080.mp4");
 
     return {
       mov: movSrc || derived.mov,
       optimizedMp4,
       mp4: optimizedMp4,
+      fallbackScrubMp4,
       fallbackMp4: mp4Src || derived.mp4,
       webm: webmSrc || derived.webm,
     };
@@ -213,6 +215,9 @@ export default function ScrollScrubScene({
           >
             {mediaSources.mov && <source src={mediaSources.mov} type="video/quicktime" />}
             {mediaSources.optimizedMp4 && <source src={mediaSources.optimizedMp4} type="video/mp4" />}
+            {mediaSources.fallbackScrubMp4 && mediaSources.fallbackScrubMp4 !== mediaSources.optimizedMp4 && (
+              <source src={mediaSources.fallbackScrubMp4} type="video/mp4" />
+            )}
             {mediaSources.fallbackMp4 && mediaSources.fallbackMp4 !== mediaSources.optimizedMp4 && (
               <source src={mediaSources.fallbackMp4} type="video/mp4" />
             )}

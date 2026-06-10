@@ -61,8 +61,8 @@ export const uiCopy = {
       unavailable: "Ses dosyasi bekleniyor",
     },
     scrub: {
-      desktop: "Kaydirarak ilerle",
-      touch: "Parmaginla ilerlet",
+      desktop: "Yavaşça kaydır",
+      touch: "Parmağını yavaşça kaydır",
     },
   },
   en: {
@@ -120,8 +120,8 @@ export const uiCopy = {
       unavailable: "Sound file pending",
     },
     scrub: {
-      desktop: "Scroll to move",
-      touch: "Move with your finger",
+      desktop: "Scroll slowly",
+      touch: "Move slowly with your finger",
     },
   },
 };

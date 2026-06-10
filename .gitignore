@@ -5,6 +5,7 @@ dist
 public/assets/videos/*.mov
 public/assets/videos/*-scrub-720.mp4
 public/assets/videos/*-scrub-1080.mp4
+public/assets/videos/*-scrub-hq-1080.mp4
 test-results
 .vercel
 .vercel
