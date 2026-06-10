@@ -37,9 +37,17 @@ const playbackSourcesFor = (video) => {
 
   const useMobileVideo =
     window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(max-width: 760px)").matches;
-  const optimized = video.replace(/\.mp4$/i, useMobileVideo ? "-mobile-v3.mp4" : "-scrub-1080.mp4");
+  const optimized = video.replace(/\.mp4$/i, useMobileVideo ? "-mobile-v2.mp4" : "-scrub-1080.mp4");
 
-  return optimized === video ? [video] : [optimized, video];
+  if (!useMobileVideo) {
+    return optimized === video ? [video] : [optimized, video];
+  }
+
+  return [
+    optimized,
+    video.replace(/\.mp4$/i, "-mobile.mp4"),
+    video,
+  ].filter((source, index, sources) => source && sources.indexOf(source) === index);
 };
 
 function SceneMedia({ image, video, eager = false }) {

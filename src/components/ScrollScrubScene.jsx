@@ -16,13 +16,21 @@ const mediaSourcesFrom = (src) => {
   };
 };
 
-const optimizedVideoSource = (src) => {
-  if (!src?.endsWith(".mp4") || !isBrowser) return src;
+const optimizedVideoSources = (src) => {
+  if (!src?.endsWith(".mp4") || !isBrowser) return src ? [src] : [];
 
   const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
   const narrowViewport = window.matchMedia("(max-width: 760px)").matches;
 
-  return src.replace(/\.mp4$/i, hasCoarsePointer || narrowViewport ? "-mobile-v3.mp4" : "-scrub-1080.mp4");
+  if (hasCoarsePointer || narrowViewport) {
+    return [
+      src.replace(/\.mp4$/i, "-mobile-v2.mp4"),
+      src.replace(/\.mp4$/i, "-mobile.mp4"),
+      src,
+    ];
+  }
+
+  return [src.replace(/\.mp4$/i, "-scrub-1080.mp4"), src];
 };
 
 export default function ScrollScrubScene({
@@ -59,13 +67,14 @@ export default function ScrollScrubScene({
 
   const mediaSources = useMemo(() => {
     const derived = mediaSourcesFrom(place?.video || mp4Src || webmSrc || movSrc);
-    const optimizedMp4 = optimizedVideoSource(mp4Src || derived.mp4);
+    const optimizedMp4s = optimizedVideoSources(mp4Src || derived.mp4);
+    const mp4s = [...optimizedMp4s, mp4Src || derived.mp4].filter(
+      (source, index, sources) => source && sources.indexOf(source) === index
+    );
 
     return {
       mov: movSrc || derived.mov,
-      optimizedMp4,
-      mp4: optimizedMp4,
-      fallbackMp4: mp4Src || derived.mp4,
+      optimizedMp4s: mp4s,
       webm: webmSrc || derived.webm,
     };
   }, [movSrc, mp4Src, place?.video, webmSrc]);
@@ -256,7 +265,7 @@ export default function ScrollScrubScene({
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [captions.length, mediaSources.mov, mediaSources.mp4, mediaSources.webm, shouldLoadVideo]);
+  }, [captions.length, mediaSources.mov, mediaSources.optimizedMp4s, mediaSources.webm, shouldLoadVideo]);
 
   const textureClass = place?.texture || "water";
   const poster = posterSrc || place?.image;
@@ -287,7 +296,7 @@ export default function ScrollScrubScene({
 
         {shouldLoadVideo && !videoFailed && (
           <video
-            key={mediaSources.optimizedMp4 || mediaSources.fallbackMp4 || mediaSources.mov || mediaSources.webm}
+            key={mediaSources.optimizedMp4s.join("|") || mediaSources.mov || mediaSources.webm}
             className="scrub-video"
             ref={videoRef}
             muted
@@ -299,10 +308,9 @@ export default function ScrollScrubScene({
             onError={() => setVideoFailed(true)}
           >
             {mediaSources.mov && <source src={mediaSources.mov} type="video/quicktime" />}
-            {mediaSources.optimizedMp4 && <source src={mediaSources.optimizedMp4} type="video/mp4" />}
-            {mediaSources.fallbackMp4 && mediaSources.fallbackMp4 !== mediaSources.optimizedMp4 && (
-              <source src={mediaSources.fallbackMp4} type="video/mp4" />
-            )}
+            {mediaSources.optimizedMp4s.map((source) => (
+              <source key={source} src={source} type="video/mp4" />
+            ))}
             {mediaSources.webm && <source src={mediaSources.webm} type="video/webm" />}
           </video>
         )}
