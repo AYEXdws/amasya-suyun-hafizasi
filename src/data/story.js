@@ -63,6 +63,7 @@ export const uiCopy = {
     scrub: {
       desktop: "Yavaşça kaydır",
       touch: "Parmağını yavaşça kaydır",
+      loading: "Video hazırlanıyor",
     },
   },
   en: {
@@ -122,6 +123,7 @@ export const uiCopy = {
     scrub: {
       desktop: "Scroll slowly",
       touch: "Move slowly with your finger",
+      loading: "Preparing video",
     },
   },
 };

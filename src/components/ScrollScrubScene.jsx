@@ -38,6 +38,7 @@ export default function ScrollScrubScene({
   const lastSeekAtRef = useRef(0);
   const lastProgressRef = useRef(-1);
   const progressBarRef = useRef(null);
+  const objectUrlRef = useRef(null);
   const viewportHeightRef = useRef(0);
   const viewportWidthRef = useRef(0);
   const prefersReducedMotionRef = useRef(false);
@@ -47,6 +48,9 @@ export default function ScrollScrubScene({
   const [isTouch, setIsTouch] = useState(false);
   const [pinState, setPinState] = useState("before");
   const [useMobileVideo, setUseMobileVideo] = useState(false);
+  const [preparedSrc, setPreparedSrc] = useState("");
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isPreparing, setIsPreparing] = useState(false);
 
   const mediaSources = useMemo(() => {
     const activePlaceVideo = useMobileVideo && place?.mobileVideo ? place.mobileVideo : place?.video;
@@ -68,6 +72,11 @@ export default function ScrollScrubScene({
     [captions, progress]
   );
 
+  const remoteSrc = useMemo(
+    () => mediaSources.optimizedMp4 || mediaSources.fallbackMp4 || mediaSources.mov || mediaSources.webm || "",
+    [mediaSources.fallbackMp4, mediaSources.mov, mediaSources.optimizedMp4, mediaSources.webm]
+  );
+
   useEffect(() => {
     prefersReducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarseQuery = window.matchMedia("(pointer: coarse)");
@@ -83,6 +92,83 @@ export default function ScrollScrubScene({
     mobileVideoQuery.addEventListener("change", syncMobileVideo);
     return () => mobileVideoQuery.removeEventListener("change", syncMobileVideo);
   }, []);
+
+  useEffect(() => {
+    if (!remoteSrc) {
+      setPreparedSrc("");
+      return undefined;
+    }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+
+    setPreparedSrc("");
+    setDownloadProgress(0);
+    setIsPreparing(true);
+
+    const prepareVideo = async () => {
+      try {
+        const response = await fetch(remoteSrc, {
+          cache: "force-cache",
+          mode: "cors",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Video fetch failed: ${response.status}`);
+        }
+
+        const total = Number(response.headers.get("content-length")) || 0;
+
+        if (!response.body || !total) {
+          const blob = await response.blob();
+          if (cancelled) return;
+          objectUrlRef.current = URL.createObjectURL(blob);
+          setPreparedSrc(objectUrlRef.current);
+          setDownloadProgress(1);
+          setIsPreparing(false);
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const chunks = [];
+        let received = 0;
+
+        while (!cancelled) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.byteLength;
+          setDownloadProgress(Math.min(received / total, 1));
+        }
+
+        if (cancelled) return;
+
+        const blob = new Blob(chunks, { type: "video/mp4" });
+        objectUrlRef.current = URL.createObjectURL(blob);
+        setPreparedSrc(objectUrlRef.current);
+        setDownloadProgress(1);
+        setIsPreparing(false);
+      } catch {
+        if (cancelled) return;
+        setPreparedSrc(remoteSrc);
+        setDownloadProgress(1);
+        setIsPreparing(false);
+      }
+    };
+
+    prepareVideo();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [remoteSrc]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -200,7 +286,16 @@ export default function ScrollScrubScene({
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(frameRef.current);
     };
-  }, [mediaSources.mov, mediaSources.mp4, mediaSources.webm]);
+  }, [preparedSrc]);
+
+  useEffect(
+    () => () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
+    },
+    []
+  );
 
   const textureClass = place?.texture || "water";
   const poster = posterSrc || place?.image;
@@ -229,25 +324,16 @@ export default function ScrollScrubScene({
 
         {!videoFailed && (
           <video
-            key={mediaSources.optimizedMp4 || mediaSources.fallbackMp4 || mediaSources.mov || mediaSources.webm}
+            key={preparedSrc || remoteSrc}
             className="scrub-video"
             ref={videoRef}
+            src={preparedSrc || undefined}
             muted
             playsInline
             preload="auto"
             poster={poster}
             onError={() => setVideoFailed(true)}
-          >
-            {mediaSources.mov && <source src={mediaSources.mov} type="video/quicktime" />}
-            {mediaSources.optimizedMp4 && <source src={mediaSources.optimizedMp4} type="video/mp4" />}
-            {mediaSources.fallbackScrubMp4 && mediaSources.fallbackScrubMp4 !== mediaSources.optimizedMp4 && (
-              <source src={mediaSources.fallbackScrubMp4} type="video/mp4" />
-            )}
-            {mediaSources.fallbackMp4 && mediaSources.fallbackMp4 !== mediaSources.optimizedMp4 && (
-              <source src={mediaSources.fallbackMp4} type="video/mp4" />
-            )}
-            {mediaSources.webm && <source src={mediaSources.webm} type="video/webm" />}
-          </video>
+          />
         )}
 
         {videoFailed && <div className="scrub-placeholder" aria-hidden="true" />}
@@ -257,7 +343,11 @@ export default function ScrollScrubScene({
           <audio src={place.ambientSound} preload="none" aria-label={`${place.name} ortam sesi`} />
         )}
         <div className="scrub-hint">
-          {isTouch ? hintLabels?.touch || "Parmaginla ilerlet" : hintLabels?.desktop || "Kaydirarak ilerle"}
+          {isPreparing
+            ? `${hintLabels?.loading || "Video hazırlanıyor"} ${Math.round(downloadProgress * 100)}%`
+            : isTouch
+              ? hintLabels?.touch || "Parmaginla ilerlet"
+              : hintLabels?.desktop || "Kaydirarak ilerle"}
         </div>
         <div className="scrub-progress" ref={progressBarRef} style={{ transform: `scaleX(${progress})` }} />
         {activeCaption?.text && (

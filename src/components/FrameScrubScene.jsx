@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const padFrame = (index) => String(index + 1).padStart(4, "0");
 const decodedFrameWindow = 10;
+const nearbyFrameRadius = 4;
 
 export default function FrameScrubScene({
   frameBaseUrl,
@@ -131,24 +132,6 @@ export default function FrameScrubScene({
     [drawImageCover, frameCount, frameUrl, pruneDecodedFrames]
   );
 
-  const warmFrameCache = useCallback(
-    async (index) => {
-      const safeIndex = clamp(index, 0, frameCount - 1);
-      if (framesRef.current.has(safeIndex) || loadingRef.current.has(safeIndex)) return;
-
-      try {
-        const response = await fetch(frameUrl(safeIndex), {
-          cache: "force-cache",
-          mode: "cors",
-        });
-        await response.blob();
-      } catch {
-        // Cache warming is opportunistic; direct image loading still handles the frame.
-      }
-    },
-    [frameCount, frameUrl]
-  );
-
   useEffect(() => {
     setIsTouch(window.matchMedia("(pointer: coarse)").matches);
     stableHeightRef.current = Math.round(window.visualViewport?.height || window.innerHeight);
@@ -161,29 +144,7 @@ export default function FrameScrubScene({
       drawNearestFrame(currentIndexRef.current);
       setIsReady(framesRef.current.size > 0);
     });
-
-    let cancelled = false;
-    const preloadAll = async () => {
-      const concurrency = 4;
-      let next = 8;
-
-      const worker = async () => {
-        while (!cancelled && next < frameCount) {
-          const index = next;
-          next += 1;
-          await warmFrameCache(index);
-        }
-      };
-
-      await Promise.all(Array.from({ length: concurrency }, worker));
-    };
-
-    preloadAll();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [drawNearestFrame, frameCount, loadFrame, warmFrameCache]);
+  }, [drawNearestFrame, frameCount, loadFrame]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -215,11 +176,9 @@ export default function FrameScrubScene({
 
       if (targetIndex !== currentIndexRef.current) {
         currentIndexRef.current = targetIndex;
-        loadFrame(targetIndex).catch(() => undefined);
-        loadFrame(targetIndex + 1).catch(() => undefined);
-        loadFrame(targetIndex - 1).catch(() => undefined);
-        loadFrame(targetIndex + 2).catch(() => undefined);
-        loadFrame(targetIndex - 2).catch(() => undefined);
+        for (let offset = -nearbyFrameRadius; offset <= nearbyFrameRadius; offset += 1) {
+          loadFrame(targetIndex + offset).catch(() => undefined);
+        }
         pruneDecodedFrames(targetIndex);
       }
 
