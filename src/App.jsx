@@ -10,6 +10,7 @@ import {
   useParams,
 } from "react-router-dom";
 import AudioController from "./components/AudioController";
+import ExperiencePreloader from "./components/ExperiencePreloader";
 import InteractiveStory from "./components/InteractiveStory";
 import ScrollScrubScene from "./components/ScrollScrubScene";
 import { mediaPath } from "./data/media";
@@ -72,6 +73,7 @@ function SceneMedia({ image, video, eager = false }) {
           muted
           loop
           playsInline
+          crossOrigin="anonymous"
           preload={eager ? "metadata" : "none"}
           onError={(event) => {
             event.currentTarget.hidden = true;
@@ -412,6 +414,12 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const [mediaReady, setMediaReady] = useState(false);
+
+  if (!mediaReady) {
+    return <ExperiencePreloader onReady={() => setMediaReady(true)} />;
+  }
+
   return (
     <BrowserRouter>
       <AppRoutes />

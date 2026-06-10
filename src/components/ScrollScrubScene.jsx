@@ -301,6 +301,7 @@ export default function ScrollScrubScene({
             ref={videoRef}
             muted
             playsInline
+            crossOrigin="anonymous"
             autoPlay={isPassivePlayback}
             loop={isPassivePlayback}
             preload="metadata"
