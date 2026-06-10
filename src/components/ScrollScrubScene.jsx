@@ -121,17 +121,21 @@ export default function ScrollScrubScene({
     const animate = (now = 0) => {
       if (metadataReadyRef.current && !prefersReducedMotionRef.current) {
         const isCoarse = coarsePointerRef.current;
-        const lerpAmount = isCoarse ? 0.08 : 0.12;
-        const minSeekInterval = isCoarse ? 95 : 48;
-        const seekThreshold = isCoarse ? 0.12 : 0.055;
-        const nextTime = lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
+        const targetDelta = Math.abs(targetTimeRef.current - displayedTimeRef.current);
+        const lerpAmount = isCoarse ? 0.28 : 0.12;
+        const minSeekInterval = isCoarse ? 42 : 48;
+        const seekThreshold = isCoarse ? 0.035 : 0.055;
+        const nextTime =
+          isCoarse && targetDelta > 0.28
+            ? targetTimeRef.current
+            : lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
 
         displayedTimeRef.current = nextTime;
 
         if (
           now - lastSeekAtRef.current >= minSeekInterval &&
           Math.abs(video.currentTime - nextTime) > seekThreshold &&
-          !video.seeking
+          (isCoarse || !video.seeking)
         ) {
           lastSeekAtRef.current = now;
           seekVideo(nextTime);
