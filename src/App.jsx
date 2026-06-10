@@ -10,7 +10,6 @@ import {
   useParams,
 } from "react-router-dom";
 import AudioController from "./components/AudioController";
-import ExperiencePreloader from "./components/ExperiencePreloader";
 import InteractiveStory from "./components/InteractiveStory";
 import ScrollScrubScene from "./components/ScrollScrubScene";
 import { mediaPath } from "./data/media";
@@ -31,29 +30,7 @@ const pageMotion = {
   transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] },
 };
 
-const playbackSourcesFor = (video) => {
-  if (!video?.endsWith(".mp4") || typeof window === "undefined") {
-    return video ? [video] : [];
-  }
-
-  const useMobileVideo =
-    window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(max-width: 760px)").matches;
-  const optimized = video.replace(/\.mp4$/i, useMobileVideo ? "-mobile-v2.mp4" : "-scrub-1080.mp4");
-
-  if (!useMobileVideo) {
-    return optimized === video ? [video] : [optimized, video];
-  }
-
-  return [
-    optimized,
-    video.replace(/\.mp4$/i, "-mobile.mp4"),
-    video,
-  ].filter((source, index, sources) => source && sources.indexOf(source) === index);
-};
-
 function SceneMedia({ image, video, eager = false }) {
-  const videoSources = playbackSourcesFor(video);
-
   return (
     <div className="scene-media" aria-hidden="true">
       {image && (
@@ -66,23 +43,19 @@ function SceneMedia({ image, video, eager = false }) {
           }}
         />
       )}
-      {videoSources.length > 0 && (
+      {video && (
         <video
+          src={video}
           poster={image}
           autoPlay
           muted
           loop
           playsInline
-          crossOrigin="anonymous"
-          preload={eager ? "metadata" : "none"}
+          preload="auto"
           onError={(event) => {
             event.currentTarget.hidden = true;
           }}
-        >
-          {videoSources.map((source) => (
-            <source key={source} src={source} type="video/mp4" />
-          ))}
-        </video>
+        />
       )}
     </div>
   );
@@ -414,12 +387,6 @@ function AppRoutes() {
 }
 
 export default function App() {
-  const [mediaReady, setMediaReady] = useState(false);
-
-  if (!mediaReady) {
-    return <ExperiencePreloader onReady={() => setMediaReady(true)} />;
-  }
-
   return (
     <BrowserRouter>
       <AppRoutes />
