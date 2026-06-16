@@ -1,129 +1,61 @@
 import { mediaPath as assetPath } from "./media";
 
-export const languages = {
-  tr: "TR",
-  en: "EN",
-};
-
 export const uiCopy = {
   tr: {
     nav: {
       home: "Ana Sayfa",
-      story: "Hikaye",
-      experience: "Deneyim",
-      explore: "Kesfet",
+      story: "Hikâye",
+      explore: "Keşfet",
     },
     home: {
-      eyebrow: "Amasya Deneyimi",
-      title: "Amasya'ya Hos Geldin",
+      eyebrow: "Amasya'ya giriş",
+      title: "Amasya'ya Hoş Geldin",
       subtitle:
-        "Bu sehir aceleyle gezilmez. Once suya, sonra kayaya, sonra avlulara bakilir.",
+        "Bu şehir aceleyle gezilmez. Yeşilırmak'ın kıyısından başlar, Harşena'nın taşında derinleşir, avlularda ve sokaklarda usulca tamamlanır.",
       route: "Rota ile gez",
-      experience: "Etkilesimli deneyim",
-      explore: "Mekanlari kesfet",
+      explore: "Mekânları keşfet",
     },
     story: {
-      eyebrow: "Amasya'da bir gun",
-      title: "Kiyidan basla, yukariya dogru oku.",
+      eyebrow: "Amasya'da bir gün",
+      title: "Kıyıdan başla, şehri yavaş yavaş yükselerek oku.",
       subtitle:
-        "Rota Yeşilirmak kiyisindan acilir; evler, kulliye, kaya, kale ve gece birbirine baglanir.",
-      start: "Rotaya basla",
+        "Yeşilırmak kıyısı, Yalıboyu Evleri, külliye avlusu, Kral Kaya Mezarları ve Harşena aynı vadide birbirine bağlanır.",
+      start: "Rotaya başla",
       index: "Durak listesi",
     },
     route: {
-      cityNote: "Sehir notu",
+      cityNote: "Şehir notu",
       localTip: "Yerel not",
       continue: "Devam et",
-      complete: "Yolculugu tamamla",
+      complete: "Yolculuğu tamamla",
       nextStop: "Sonraki durak",
-      back: "Geri don",
+      back: "Geri dön",
       index: "Durak listesi",
     },
     explore: {
-      eyebrow: "Sehir indeksi",
-      title: "Amasya'yi parca parca gor.",
+      eyebrow: "Şehir indeksi",
+      title: "Amasya'yı su, taş ve avlu üzerinden keşfet.",
       subtitle:
-        "Her durak tek basina degil; nehir, ev, kaya ve avlu ayni sehir duzeninin parcalari.",
+        "Her durak tek başına değil; Yeşilırmak, Yalıboyu, Harşena ve Osmanlı şehir düzeniyle birlikte anlam kazanır.",
       enter: "Rotaya gir",
-      sound: "Ses onerisi",
     },
     final: {
-      eyebrow: "Yolculuk ozeti",
+      eyebrow: "Yolculuk özeti",
       title: "Amasya geride kalmaz.",
       subtitle:
-        "Kiyi, yamaç, avlu ve gece ayni cizgide toplandi. Simdi sehir akilda daha sakin durur.",
-      restart: "Yeni yolculuk baslat",
-      explore: "Mekanlari kesfet",
+        "Kıyı, yamaç, avlu ve sokak aynı şehir çizgisinde birleşti. Şimdi Amasya gözden çok akılda kalır.",
+      restart: "Yeni yolculuk başlat",
+      explore: "Mekânları keşfet",
     },
     audio: {
-      enable: "Sesi ac",
+      enable: "Sesi aç",
       disable: "Sesi kapat",
-      unavailable: "Ses dosyasi bekleniyor",
+      unavailable: "Ses dosyası bekleniyor",
     },
     scrub: {
       desktop: "Yavaşça kaydır",
       touch: "Parmağını yavaşça kaydır",
       loading: "Video hazırlanıyor",
-    },
-  },
-  en: {
-    nav: {
-      home: "Home",
-      story: "Story",
-      experience: "Experience",
-      explore: "Explore",
-    },
-    home: {
-      eyebrow: "Amasya Experience",
-      title: "Welcome to Amasya",
-      subtitle:
-        "This city is not rushed. Start by the river, then look up to the rock and into the courtyards.",
-      route: "Follow the route",
-      experience: "Interactive experience",
-      explore: "Explore places",
-    },
-    story: {
-      eyebrow: "One day in Amasya",
-      title: "Begin by the river, then read the city upward.",
-      subtitle:
-        "The route opens on the Yeşilirmak, then joins the houses, courtyards, rock tombs, castle and night view.",
-      start: "Start the route",
-      index: "Stop list",
-    },
-    route: {
-      cityNote: "City note",
-      localTip: "Local note",
-      continue: "Continue",
-      complete: "Finish the journey",
-      nextStop: "Next stop",
-      back: "Go back",
-      index: "Stop list",
-    },
-    explore: {
-      eyebrow: "City index",
-      title: "See Amasya in clear layers.",
-      subtitle:
-        "No stop stands alone here. River, houses, rock and courtyard belong to the same city line.",
-      enter: "Enter route",
-      sound: "Sound to add",
-    },
-    final: {
-      eyebrow: "Journey summary",
-      title: "Amasya does not simply stay behind.",
-      subtitle:
-        "The riverbank, slope, courtyard and night view now sit on the same line in memory.",
-      restart: "Start again",
-      explore: "Explore places",
-    },
-    audio: {
-      enable: "Sound on",
-      disable: "Sound off",
-      unavailable: "Sound file pending",
-    },
-    scrub: {
-      desktop: "Scroll slowly",
-      touch: "Move slowly with your finger",
-      loading: "Preparing video",
     },
   },
 };
@@ -139,7 +71,7 @@ export const dayRouteIds = [
   "kisin-amasya",
   "eski-sokaklar",
   "amasya-yasam",
-  "borabay",
+  "boraboy",
   "ferhat-sirin",
 ];
 
@@ -152,29 +84,18 @@ export const places = [
     mobileVideo: assetPath("videos", "yesil-irmak-9-16.mp4"),
     ambientSound: assetPath("sounds", "yesilirmak.mp3"),
     soundHint: {
-      tr: "Hafif nehir akisi, uzak sehir sesi.",
-      en: "Soft river movement with a distant town bed.",
+      tr: "Hafif nehir akışı, uzaktan gelen şehir sesi.",
     },
     copy: {
       tr: {
-        name: "Yeşilirmak",
-        eyebrow: "Irmak kiyisi",
+        name: "Yeşilırmak",
+        eyebrow: "Irmak kıyısı",
         sceneLine:
-          "Amasya'ya ilk bakis suyun kenarindan gelir; evler ve kaya ayni hatta durur.",
+          "Amasya önce suyun çizgisinde görünür; evler kıyıya iner, Harşena arkada yükselir.",
         description:
-          "Yeşilirmak, tarihî merkezi iki kiyida toplar. Kisa bir yuruyuste Yaliboyu Evleri, Harşena ve kaya mezarlari ayni manzaraya girer.",
-        tip: "Sabah erken ya da aksamustu yuru. Isik yumusakken kiyinin olcegi daha iyi okunur.",
-        next: [{ label: "Yaliboyu'na devam", nextId: "yaliboyu" }],
-      },
-      en: {
-        name: "Yeşilirmak",
-        eyebrow: "Riverbank",
-        sceneLine:
-          "Amasya first appears from the waterline, where the houses and rock share the same view.",
-        description:
-          "The Yeşilirmak gathers the historic centre on both banks. In a short walk, the riverside houses, Harşena and the rock tombs come into one frame.",
-        tip: "Walk early or near sunset. Softer light makes the river line easier to read.",
-        next: [{ label: "Continue to Yaliboyu", nextId: "yaliboyu" }],
+          "Yeşilırmak, tarihî merkezi iki kıyıda bir araya getirir. Kısa bir yürüyüşte Yalıboyu Evleri, Harşena Dağı ve Kral Kaya Mezarları aynı manzaranın içinde okunur.",
+        tip: "Sabah erken ya da akşamüstü yürü. Işık yumuşadığında kıyının ritmi daha sakin anlaşılır.",
+        next: [{ label: "Yalıboyu'na devam", nextId: "yaliboyu" }],
       },
     },
   },
@@ -186,29 +107,18 @@ export const places = [
     mobileVideo: assetPath("videos", "yaliboyu-9-16.mp4"),
     ambientSound: assetPath("sounds", "yaliboyu.mp3"),
     soundHint: {
-      tr: "Su kiyisi, hafif ayak sesi, uzaktan insan sesi.",
-      en: "Waterside ambience, soft footsteps, distant voices.",
+      tr: "Su kıyısı, hafif ayak sesi, uzaktan insan sesi.",
     },
     copy: {
       tr: {
-        name: "Yaliboyu Evleri",
+        name: "Yalıboyu Evleri",
         eyebrow: "Nehre bakan evler",
         sceneLine:
-          "Ahşap cumbalar eski surlarin ustunde nehre bakar; sehrin en tanidik yuzu burasidir.",
+          "Ahşap cumbalar eski surların üstünden nehre bakar; Amasya'nın en tanıdık yüzü burada durur.",
         description:
-          "Yaliboyu Evleri, Yeşilirmak kiyisinda eski sur duvarlari uzerinde siralanir. Ahşap catki, kerpic dolgu ve cumbalar geleneksel Amasya evini acikca gosterir.",
-        tip: "Kopruye cik. Evlerin, nehrin ve Harşena'nin nasil ayni kareye girdigini oradan gorursun.",
-        next: [{ label: "Sehzadeler izine gir", nextId: "sehzadeler" }],
-      },
-      en: {
-        name: "Yaliboyu Houses",
-        eyebrow: "Houses facing the river",
-        sceneLine:
-          "Timber bay windows stand above old walls and face the river; this is Amasya's most familiar face.",
-        description:
-          "The Yaliboyu houses line the Yeşilirmak on old city walls. Timber frames, earthen infill and bay windows show the local house type clearly.",
-        tip: "Step onto a bridge. From there, the houses, river and Harşena sit in one frame.",
-        next: [{ label: "Follow the princes' trace", nextId: "sehzadeler" }],
+          "Yalıboyu Evleri, Yeşilırmak kıyısındaki eski sur duvarları üzerinde sıralanır. Ahşap çatkı, kerpiç dolgu, cumbalı cephe ve kiremit çatı bu yerel dokuyu açıkça gösterir.",
+        tip: "Köprüye çık. Evlerin, nehrin ve Harşena'nın nasıl aynı kareye girdiğini oradan daha iyi görürsün.",
+        next: [{ label: "Şehzadelerin izine gir", nextId: "sehzadeler" }],
       },
     },
   },
@@ -220,29 +130,18 @@ export const places = [
     mobileVideo: assetPath("videos", "bayezid-kulliyesi-9-16.mp4"),
     ambientSound: assetPath("sounds", "sehzadeler.mp3"),
     soundHint: {
-      tr: "Avlu/medrese ambiyansi, dusuk sehir sesi.",
-      en: "Courtyard and madrasa ambience with a low town bed.",
+      tr: "Avlu ve medrese ambiyansı, düşük şehir sesi.",
     },
     copy: {
       tr: {
-        name: "Sehzadeler Sehri",
-        eyebrow: "Osmanli merkezi",
+        name: "Şehzadeler Şehri",
+        eyebrow: "Osmanlı hafızası",
         sceneLine:
-          "Amasya'da sehzadelik, tek bir yapi degil; avlu, medrese ve sehir duzeniyle okunur.",
+          "Amasya'da şehzadelik bir unvan değil; avlulara, medreselere ve şehir düzenine sinmiş bir terbiyedir.",
         description:
-          "Osmanli doneminde sehzadeler sancak tecrubesi icin Amasya'ya geldi. Bu gecmis, merkezdeki kulliye, medrese ve muze cevresinde izlenebilir.",
-        tip: "Bu bolumu tek durak gibi degil, merkezde birbirine baglanan bir iz gibi gez.",
-        next: [{ label: "Kulliyeye gec", nextId: "bayezid-kulliyesi" }],
-      },
-      en: {
-        name: "City of Princes",
-        eyebrow: "Ottoman centre",
-        sceneLine:
-          "In Amasya, the story of princes is read through courtyards, schools and the order of the town.",
-        description:
-          "During the Ottoman period, princes came to Amasya for provincial experience. The trace remains around the külliye, madrasas and museums of the centre.",
-        tip: "Treat this as a connected walk through the centre, not as a single building.",
-        next: [{ label: "Enter the külliye", nextId: "bayezid-kulliyesi" }],
+          "Osmanlı döneminde birçok şehzade Amasya'da sancak tecrübesi kazandı. Bu geçmiş, merkezdeki külliye, medrese ve müze çevresinde hâlâ izlenebilir.",
+        tip: "Bu bölümü tek yapı gibi gezme. Merkezde birbirine bağlanan küçük avlulara ve geçişlere dikkat et.",
+        next: [{ label: "Külliyeye geç", nextId: "bayezid-kulliyesi" }],
       },
     },
   },
@@ -254,29 +153,18 @@ export const places = [
     mobileVideo: assetPath("videos", "bayezid-kulliyesi-9-16.mp4"),
     ambientSound: assetPath("sounds", "bayezid-kulliyesi.mp3"),
     soundHint: {
-      tr: "Avlu sessizligi, hafif kus, tas mekanda yankı.",
-      en: "Quiet courtyard, light birds, soft stone echo.",
+      tr: "Avlu sessizliği, hafif kuş sesi, taş mekânda yumuşak yankı.",
     },
     copy: {
       tr: {
-        name: "II. Bayezid Kulliyesi",
-        eyebrow: "Avlu ve tas",
+        name: "II. Bayezid Külliyesi",
+        eyebrow: "Avlu ve taş",
         sceneLine:
-          "Avluya girince sehir sesi azalir; tas, golge ve olcu onde kalir.",
+          "Avluya girince şehir sesi azalır; taş, gölge ve ölçü kendini belli eder.",
         description:
-          "II. Bayezid Kulliyesi, Amasya'nin onemli Osmanli yapilarindandir. Cami, avlu ve cevresindeki duzen sehrin sakin asaletini tasir.",
-        tip: "Avluda hizlanma. Bir kac dakika durunca yapinin olcusu daha iyi anlasilir.",
+          "II. Bayezid Külliyesi, Amasya'nın Osmanlı döneminden kalan önemli yapı topluluklarından biridir. Cami, avlu ve çevresindeki düzen şehrin sakin asaletini taşır.",
+        tip: "Avluda hızlanma. Birkaç dakika durunca yapının dengesi ve taşın serinliği daha iyi anlaşılır.",
         next: [{ label: "Harşena'ya bak", nextId: "kral-kaya" }],
-      },
-      en: {
-        name: "Sultan Bayezid II Külliye",
-        eyebrow: "Courtyard and stone",
-        sceneLine:
-          "Inside the courtyard the town softens; stone, shade and proportion take over.",
-        description:
-          "The Sultan Bayezid II Külliye is one of Amasya's important Ottoman complexes. Its mosque, courtyard and order carry the city's restrained dignity.",
-        tip: "Do not rush the courtyard. A few still minutes explain the scale better.",
-        next: [{ label: "Look toward Harşena", nextId: "kral-kaya" }],
       },
     },
   },
@@ -288,29 +176,18 @@ export const places = [
     mobileVideo: assetPath("videos", "kral-kaya-9-16.mp4"),
     ambientSound: assetPath("sounds", "kral-kaya.mp3"),
     soundHint: {
-      tr: "Dusuk ruzgar, taslik alan ambiyansi.",
-      en: "Low wind and dry stone ambience.",
+      tr: "Düşük rüzgâr, taşlık alan ambiyansı.",
     },
     copy: {
       tr: {
-        name: "Kral Kaya Mezarlari",
-        eyebrow: "Harşena yamaci",
+        name: "Kral Kaya Mezarları",
+        eyebrow: "Harşena yamacı",
         sceneLine:
-          "Pontus krallari icin kayaya oyulan mezarlar, sehrin ustunde sert ve acik durur.",
+          "Pontus kralları için kayaya oyulan mezarlar, şehrin üstünde hâlâ güçlü bir bakış gibi durur.",
         description:
-          "Kral Kaya Mezarlari Harşena Dagi'nin yamacindadir. Amasya'nin en guclu silueti, nehirden yukari bakinca bu oyuklarla tamamlanir.",
-        tip: "Aksamustu golge kayayi belirginlestirir. Mezar bosluklari o saatte daha rahat secilir.",
-        next: [{ label: "Harşena'ya yaklas", nextId: "harsena" }],
-      },
-      en: {
-        name: "King Rock Tombs",
-        eyebrow: "Harşena slope",
-        sceneLine:
-          "Carved for the Pontic kings, the tombs stand hard and clear above the city.",
-        description:
-          "The King Rock Tombs sit on the slope of Mount Harşena. Looking up from the river, these carved openings complete Amasya's strongest silhouette.",
-        tip: "Late afternoon shadow defines the rock better and makes the tombs easier to see.",
-        next: [{ label: "Move closer to Harşena", nextId: "harsena" }],
+          "Kral Kaya Mezarları, Harşena Dağı'nın güney yamacına oyulmuş anıtsal kaya mezarlarıdır. Amasya'nın en güçlü silueti, nehirden yukarı bakınca bu oyuklarla tamamlanır.",
+        tip: "Akşamüstü gölge kayayı belirginleştirir. Mezar boşlukları o saatlerde daha rahat seçilir.",
+        next: [{ label: "Harşena'ya yaklaş", nextId: "harsena" }],
       },
     },
   },
@@ -322,29 +199,18 @@ export const places = [
     mobileVideo: assetPath("videos", "harsena-9-16.mp4"),
     ambientSound: assetPath("sounds", "harsena.mp3"),
     soundHint: {
-      tr: "Yuksek noktada ruzgar, genis alan hissi.",
-      en: "High wind and open valley atmosphere.",
+      tr: "Yüksek noktada rüzgâr, geniş vadi hissi.",
     },
     copy: {
       tr: {
         name: "Harşena",
-        eyebrow: "Dag ve sehir",
+        eyebrow: "Dağ ve şehir",
         sceneLine:
-          "Harşena, Amasya'nin arkasinda duran buyuk yamaçtir; kale ve mezarlar onun ustundedir.",
+          "Harşena, Amasya'nın sırtını dayadığı büyük yamaçtır; kale ve mezarlar onun üstünde durur.",
         description:
-          "Harşena Dagi, kaleyi ve kaya mezarlarini tasir. Nehirle dag arasina kurulan sehrin sikisik ama guclu duzeni burada anlasilir.",
-        tip: "Asagiya bakarken sadece manzarayi degil, sehrin nasil yer tuttugunu izle.",
-        next: [{ label: "Kaleye cik", nextId: "amasya-kalesi" }],
-      },
-      en: {
-        name: "Harşena",
-        eyebrow: "Mountain and town",
-        sceneLine:
-          "Harşena is the great slope behind Amasya, carrying the castle and rock tombs above the town.",
-        description:
-          "Mount Harşena holds the castle and the carved tombs. From here, the compact order between river and mountain becomes clear.",
-        tip: "Look down not only for the view, but for how the town has found its place.",
-        next: [{ label: "Climb to the castle", nextId: "amasya-kalesi" }],
+          "Harşena Dağı, kaleyi ve kaya mezarlarını taşır. Nehirle dağ arasına kurulan şehrin dar ama güçlü düzeni burada daha açık anlaşılır.",
+        tip: "Aşağıya bakarken yalnız manzarayı değil, şehrin vadide nasıl yer tuttuğunu izle.",
+        next: [{ label: "Kaleye çık", nextId: "amasya-kalesi" }],
       },
     },
   },
@@ -356,29 +222,18 @@ export const places = [
     mobileVideo: assetPath("videos", "amasya-kalesi-9-16.mp4"),
     ambientSound: assetPath("sounds", "amasya-kalesi.mp3"),
     soundHint: {
-      tr: "Ruzgar, uzak kus ve sehir ugultusu.",
-      en: "Wind, distant birds and a faint town hum.",
+      tr: "Rüzgâr, uzak kuş sesi ve hafif şehir uğultusu.",
     },
     copy: {
       tr: {
         name: "Amasya Kalesi",
-        eyebrow: "Yukaridan sehir",
+        eyebrow: "Yukarıdan şehir",
         sceneLine:
-          "Kaleden bakinca Yeşilirmak, evler ve kaya ayni vadide neden bulustugu anlasilir.",
+          "Kaleden bakınca Yeşilırmak, evler ve kaya aynı vadide neden buluşmuş, daha iyi anlaşılır.",
         description:
-          "Amasya Kalesi Harşena Dagi uzerindedir. Yukaridan nehir kivrimi, Yaliboyu ve eski sehir dokusu birlikte gorunur.",
-        tip: "Gunes batmadan cik. Donuste sehir isiklari yavas yavas yanmaya baslar.",
-        next: [{ label: "Kis manzarasina in", nextId: "kisin-amasya" }],
-      },
-      en: {
-        name: "Amasya Castle",
-        eyebrow: "Town from above",
-        sceneLine:
-          "From the castle, the river, houses and rock explain why the city settled in this valley.",
-        description:
-          "Amasya Castle stands on Mount Harşena. From above, the river bend, Yaliboyu and old town fabric appear together.",
-        tip: "Go up before sunset. On the way back, the lights begin to mark the town.",
-        next: [{ label: "Move to the winter view", nextId: "kisin-amasya" }],
+          "Amasya Kalesi, Harşena Dağı üzerinde yer alır. Yukarıdan nehir kıvrımı, Yalıboyu ve eski şehir dokusu birlikte görünür.",
+        tip: "Güneş batmadan çık. Dönüşte şehir ışıkları yavaş yavaş yanmaya başlar.",
+        next: [{ label: "Kış manzarasına in", nextId: "kisin-amasya" }],
       },
     },
   },
@@ -390,29 +245,18 @@ export const places = [
     mobileVideo: assetPath("videos", "amasya-kisin-9-16.mp4"),
     ambientSound: assetPath("sounds", "amasya-kisin.mp3"),
     soundHint: {
-      tr: "Soguk hava, hafif ruzgar, uzak sehir sesi.",
-      en: "Cold air, light wind and a distant town bed.",
+      tr: "Soğuk hava, hafif rüzgâr, uzaktan şehir sesi.",
     },
     copy: {
       tr: {
-        name: "Kisin Amasya",
-        eyebrow: "Soguk hava, acik siluet",
+        name: "Kışın Amasya",
+        eyebrow: "Açık siluet",
         sceneLine:
-          "Kis isiginda Amasya daha sade gorunur; kaya, nehir ve evler ayni cizgide kalir.",
+          "Kış ışığında Amasya sadeleşir; kaya, nehir ve evler aynı çizgide daha net görünür.",
         description:
-          "Kis aylarinda sehir daha sakin bir yuz gosterir. Soguk hava Harşena'yi, Yaliboyu'nu ve nehir hattini daha temiz okutabilir.",
-        tip: "Hava aciksa yuksekten bak. Kis manzarasi Amasya'nin vadideki yerini daha net gosterir.",
+          "Soğuk ve açık havalarda Harşena yamacı, Yalıboyu ve Yeşilırmak hattı daha temiz okunur. Şehir kalabalığından arınıp kendi çizgisine döner.",
+        tip: "Hava açıksa yüksekten bak. Kış manzarası Amasya'nın vadideki yerini daha net gösterir.",
         next: [{ label: "Sokaklara in", nextId: "eski-sokaklar" }],
-      },
-      en: {
-        name: "Amasya in Winter",
-        eyebrow: "Cold air, clear silhouette",
-        sceneLine:
-          "In winter light, Amasya looks simpler; rock, river and houses stay on the same line.",
-        description:
-          "In winter, the city often shows a calmer face. Clear cold air can make Harşena, Yaliboyu and the river line easier to read.",
-        tip: "If the weather is clear, look from higher ground. Winter makes Amasya's valley position more visible.",
-        next: [{ label: "Enter the streets", nextId: "eski-sokaklar" }],
       },
     },
   },
@@ -424,29 +268,18 @@ export const places = [
     mobileVideo: assetPath("videos", "eski-sokaklar-9-16.mp4"),
     ambientSound: assetPath("sounds", "eski-sokaklar.mp3"),
     soundHint: {
-      tr: "Dar sokak, ayak sesi, kapi ve uzaktan konusma.",
-      en: "Narrow street, footsteps, doors and distant voices.",
+      tr: "Dar sokak, ayak sesi, kapı sesi ve uzaktan konuşma.",
     },
     copy: {
       tr: {
         name: "Eski Sokaklar",
-        eyebrow: "Sehir ici",
+        eyebrow: "Şehir içi",
         sceneLine:
-          "Buyuk manzaradan cikinca Amasya kapi, esik ve dar sokak olcegine iner.",
+          "Büyük manzaradan çıkınca Amasya kapı, eşik ve dar sokak ölçeğine iner.",
         description:
-          "Eski sokaklarda ahşap cepheler, tas esikler, dar gecisler ve pencere golgeleri one cikar. Burası sehrin yasayan tarafidir.",
-        tip: "Ana yoldan kisa sapmalar yap. Bazen iyi goruntu yan sokakta karsina cikar.",
-        next: [{ label: "Bugunun sehrine bak", nextId: "amasya-yasam" }],
-      },
-      en: {
-        name: "Old Streets",
-        eyebrow: "Inside the town",
-        sceneLine:
-          "Away from the grand view, Amasya comes down to doors, thresholds and narrow lanes.",
-        description:
-          "In the old streets, timber fronts, stone thresholds, narrow passages and window shadows come forward. This is the lived part of the town.",
-        tip: "Leave the main road briefly. A better view often appears in a side street.",
-        next: [{ label: "Look at today's city", nextId: "amasya-yasam" }],
+          "Eski sokaklarda ahşap cepheler, taş eşikler, dar geçişler ve pencere gölgeleri öne çıkar. Burası şehrin hâlâ yaşayan tarafıdır.",
+        tip: "Ana yoldan kısa sapmalar yap. Bazen iyi görüntü yan sokakta karşına çıkar.",
+        next: [{ label: "Bugünün şehrine bak", nextId: "amasya-yasam" }],
       },
     },
   },
@@ -458,63 +291,41 @@ export const places = [
     mobileVideo: assetPath("videos", "sinemattik-cekim-9-16.mp4"),
     ambientSound: assetPath("sounds", "amasya-yasam.mp3"),
     soundHint: {
-      tr: "Carsi, kiyı yuruyusu ve gundelik sehir sesi.",
-      en: "Market, riverside walk and everyday town sound.",
+      tr: "Çarşı, kıyı yürüyüşü ve gündelik şehir sesi.",
     },
     copy: {
       tr: {
-        name: "Amasya'da Yasam",
-        eyebrow: "Bugunun sehri",
+        name: "Amasya'da Yaşam",
+        eyebrow: "Bugünün şehri",
         sceneLine:
-          "Pazar sesi, cay molasi ve kiyı yuruyusu; Amasya yalniz gecmiste durmaz.",
+          "Pazar sesi, çay molası ve kıyı yürüyüşü; Amasya yalnız geçmişte durmaz.",
         description:
-          "Carsi, pazar, kiyı yuruyusu ve aksam cayi sehrin bugunku ritmini gosterir. Tarihi dokunun icinde gundelik hayat devam eder.",
-        tip: "Bir yerde oturup etrafa bak. Amasya bazen yururken degil, beklerken anlasilir.",
-        next: [{ label: "Borabay'a gec", nextId: "borabay" }],
-      },
-      en: {
-        name: "Life in Amasya",
-        eyebrow: "The city today",
-        sceneLine:
-          "Market sound, tea breaks and riverside walks keep Amasya in the present.",
-        description:
-          "The market, riverside walk and evening tea show the city's present rhythm. Daily life continues inside the historic fabric.",
-        tip: "Sit somewhere and watch. Amasya is sometimes clearer when you wait.",
-        next: [{ label: "Move to Borabay", nextId: "borabay" }],
+          "Çarşı, pazar, kıyı yürüyüşü ve akşam çayı şehrin bugünkü ritmini gösterir. Tarihî dokunun içinde gündelik hayat devam eder.",
+        tip: "Bir yerde oturup etrafa bak. Amasya bazen yürürken değil, beklerken anlaşılır.",
+        next: [{ label: "Boraboy'a geç", nextId: "boraboy" }],
       },
     },
   },
   {
-    id: "borabay",
+    id: "boraboy",
     texture: "forest",
     image: assetPath("images", "borabay.jpg"),
     video: assetPath("videos", "borabay.mp4"),
     mobileVideo: assetPath("videos", "borabay-9-16.mp4"),
     ambientSound: assetPath("sounds", "borabay.mp3"),
     soundHint: {
-      tr: "Gol, orman, kus ve hafif ruzgar.",
-      en: "Lake, forest, birds and light wind.",
+      tr: "Göl, orman, kuş sesi ve hafif rüzgâr.",
     },
     copy: {
       tr: {
-        name: "Borabay",
-        eyebrow: "Gol yolu",
+        name: "Boraboy",
+        eyebrow: "Göl yolu",
         sceneLine:
-          "Merkezden uzaklasinca su bu kez akmaz; golun ustunde yavaslar.",
+          "Merkezden uzaklaşınca su bu kez akmaz; gölün üstünde yavaşlar.",
         description:
-          "Borabay Golu, Amasya merkezinin disinda orman icinde yer alir. Tarihi merkezden sonra sehrin daha serin ve acik tarafini gosterir.",
-        tip: "Burayi hizli bir fotograf molasi yapma. Gol kenarinda biraz kalmak gerekir.",
-        next: [{ label: "Ferhat yoluna don", nextId: "ferhat-sirin" }],
-      },
-      en: {
-        name: "Borabay",
-        eyebrow: "Road to the lake",
-        sceneLine:
-          "Outside the centre, water no longer runs; it slows over the lake.",
-        description:
-          "Borabay Lake sits outside central Amasya, within forest. After the historic centre, it shows a cooler and more open side of the province.",
-        tip: "Do not treat it as a quick photo stop. The lake needs a little time.",
-        next: [{ label: "Return to Ferhat's route", nextId: "ferhat-sirin" }],
+          "Boraboy Gölü, Amasya merkezinin dışında orman içinde yer alır. Tarihî merkezden sonra şehrin daha serin ve açık tarafını gösterir.",
+        tip: "Burayı hızlı bir fotoğraf molası yapma. Göl kenarında biraz kalmak gerekir.",
+        next: [{ label: "Ferhat yoluna dön", nextId: "ferhat-sirin" }],
       },
     },
   },
@@ -526,29 +337,18 @@ export const places = [
     mobileVideo: assetPath("videos", "ferhat-sirin-9-16.mp4"),
     ambientSound: assetPath("sounds", "ferhat-sirin.mp3"),
     soundHint: {
-      tr: "Ruzgar, tas/yol ambiyansi, cok dusuk su hissi.",
-      en: "Wind, stone road ambience and a very low water trace.",
+      tr: "Rüzgâr, taş ve yol ambiyansı, çok düşük su hissi.",
     },
     copy: {
       tr: {
         name: "Ferhat ile Şirin",
         eyebrow: "Efsane ve su",
         sceneLine:
-          "Bu hikayede ask kadar emek vardir; kaya ve su yolu bunu daha gercek kilar.",
+          "Bu hikâyede aşk kadar emek vardır; kaya ve su yolu anlatıyı yere bağlar.",
         description:
-          "Ferhat ile Şirin anlatisi Amasya'da su yolu ve kaya ile birlikte anilir. Bu yüzden hikaye yalniz romantik degil, mekana bagli bir emek izidir.",
-        tip: "Kayaya ve yolun yonune dikkat et. Efsane, burada arazinin icinde guclenir.",
-        next: [{ label: "Yolculugu tamamla", nextId: "final" }],
-      },
-      en: {
-        name: "Ferhat and Şirin",
-        eyebrow: "Legend and water",
-        sceneLine:
-          "This story carries labour as much as love; the rock and water channel make it tangible.",
-        description:
-          "The tale of Ferhat and Şirin in Amasya is linked with a water channel and rock. It is not only romance, but a trace of effort tied to place.",
-        tip: "Watch the rock and the direction of the path. The legend gains force through the terrain.",
-        next: [{ label: "Finish the journey", nextId: "final" }],
+          "Ferhat ile Şirin anlatısı Amasya'da su yolu ve kaya ile birlikte anılır. Bu yüzden hikâye yalnız romantik değil, mekâna bağlı bir emek izidir.",
+        tip: "Kayaya ve yolun yönüne dikkat et. Efsane burada arazinin içinde güçlenir.",
+        next: [{ label: "Yolculuğu tamamla", nextId: "final" }],
       },
     },
   },
@@ -559,8 +359,8 @@ export const placeMap = places.reduce((map, place) => {
   return map;
 }, {});
 
+placeMap.borabay = placeMap.boraboy;
+placeMap["bora-boy"] = placeMap.boraboy;
+
 export const getPlaceCopy = (place, locale = "tr") =>
   place?.copy?.[locale] || place?.copy?.tr || {};
-
-export const getSoundHint = (place, locale = "tr") =>
-  place?.soundHint?.[locale] || place?.soundHint?.tr || "";

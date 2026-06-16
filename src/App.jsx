@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   BrowserRouter,
   Link,
+  Navigate,
   NavLink,
   Route,
   Routes,
@@ -11,14 +12,12 @@ import {
 } from "react-router-dom";
 import AudioController from "./components/AudioController";
 import FrameScrubScene from "./components/FrameScrubScene";
-import InteractiveStory from "./components/InteractiveStory";
 import ScrollScrubScene from "./components/ScrollScrubScene";
 import { mediaAssetPath, mediaPath } from "./data/media";
 import { heroAssets } from "./data/stops";
 import {
   dayRouteIds,
   getPlaceCopy,
-  getSoundHint,
   placeMap,
   places,
   uiCopy,
@@ -49,10 +48,18 @@ function useMobileMediaQuery() {
 function SceneMedia({ image, video, mobileVideo, eager = false }) {
   const isMobileMedia = useMobileMediaQuery();
   const activeVideo = isMobileMedia && mobileVideo ? mobileVideo : video;
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  useEffect(() => {
+    setVideoReady(false);
+    setVideoFailed(false);
+  }, [activeVideo]);
 
   return (
     <div className="scene-media" aria-hidden="true">
-      {image && (
+      {activeVideo && !videoReady && !videoFailed && <div className="scene-media-placeholder" />}
+      {image && (!activeVideo || videoFailed) && (
         <img
           src={image}
           alt=""
@@ -66,13 +73,19 @@ function SceneMedia({ image, video, mobileVideo, eager = false }) {
         <video
           key={activeVideo}
           src={activeVideo}
-          poster={image}
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
+          className={videoReady ? "is-ready" : ""}
+          onLoadedMetadata={(event) => {
+            event.currentTarget.currentTime = 0;
+          }}
+          onLoadedData={() => setVideoReady(true)}
+          onCanPlay={() => setVideoReady(true)}
           onError={(event) => {
+            setVideoFailed(true);
             event.currentTarget.hidden = true;
           }}
         />
@@ -110,24 +123,7 @@ function CinematicScene({
   );
 }
 
-function LanguageToggle({ locale, setLocale }) {
-  return (
-    <div className="language-toggle" aria-label="Language selection">
-      {["tr", "en"].map((lang) => (
-        <button
-          key={lang}
-          type="button"
-          className={locale === lang ? "active" : ""}
-          onClick={() => setLocale(lang)}
-        >
-          {lang.toUpperCase()}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function Layout({ children, locale, setLocale }) {
+function Layout({ children, locale }) {
   const copy = uiCopy[locale].nav;
 
   return (
@@ -135,16 +131,14 @@ function Layout({ children, locale, setLocale }) {
       <header className="site-nav">
         <Link className="brand" to="/">
           <span>Amasya</span>
-          <small>Suyun Hafizasi</small>
+          <small>Suyun Hafızası</small>
         </Link>
         <div className="nav-cluster">
           <nav aria-label="Ana navigasyon">
             <NavLink to="/">{copy.home}</NavLink>
             <NavLink to="/hikaye">{copy.story}</NavLink>
-            <NavLink to="/deneyim">{copy.experience}</NavLink>
             <NavLink to="/kesfet">{copy.explore}</NavLink>
           </nav>
-          <LanguageToggle locale={locale} setLocale={setLocale} />
         </div>
       </header>
       <AnimatePresence mode="wait">{children}</AnimatePresence>
@@ -170,9 +164,6 @@ function HomePage({ locale }) {
         <div className="scene-actions">
           <Link className="scene-button primary" to="/hikaye">
             {copy.home.route}
-          </Link>
-          <Link className="scene-button" to="/deneyim">
-            {copy.home.experience}
           </Link>
           <Link className="scene-button quiet" to="/kesfet">
             {copy.home.explore}
@@ -245,8 +236,12 @@ function RoutePage({ locale, addToJourney }) {
   const nextText = nextPlace ? getPlaceCopy(nextPlace, locale) : null;
 
   useEffect(() => {
+    if (id === "borabay" || id === "bora-boy") {
+      navigate("/rota/boraboy", { replace: true });
+      return;
+    }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, [place.id]);
+  }, [id, navigate, place.id]);
 
   const goNext = () => {
     if (nextId === "final") {
@@ -328,7 +323,6 @@ function ExplorePage({ locale, addToJourney }) {
               <span>{String(index + 1).padStart(2, "0")} / {text.eyebrow}</span>
               <strong>{text.name}</strong>
               <small>{text.sceneLine}</small>
-              <em>{copy.explore.sound}: {getSoundHint(place, locale)}</em>
             </Link>
           );
         })}
@@ -371,13 +365,13 @@ function FinalPage({ locale, journey, resetJourney }) {
 
 function AppRoutes() {
   const [journey, setJourney] = useState([]);
-  const [locale, setLocale] = useState("tr");
+  const locale = "tr";
 
   useEffect(() => {
-    document.documentElement.lang = locale;
+    document.documentElement.lang = "tr";
     document.documentElement.setAttribute("translate", "no");
     document.body.setAttribute("translate", "no");
-  }, [locale]);
+  }, []);
 
   const addToJourney = (id) => {
     setJourney((current) => (current.includes(id) ? current : [...current, id]));
@@ -388,14 +382,13 @@ function AppRoutes() {
   };
 
   return (
-    <Layout locale={locale} setLocale={setLocale}>
+    <Layout locale={locale}>
       <Routes>
         <Route path="/" element={<HomePage locale={locale} />} />
         <Route
           path="/hikaye"
           element={<StoryPage locale={locale} startJourney={startJourney} />}
         />
-        <Route path="/deneyim" element={<InteractiveStory locale={locale} />} />
         <Route
           path="/rota/:id"
           element={<RoutePage locale={locale} addToJourney={addToJourney} />}
@@ -404,12 +397,14 @@ function AppRoutes() {
           path="/kesfet"
           element={<ExplorePage locale={locale} addToJourney={addToJourney} />}
         />
+        <Route path="/deneyim" element={<Navigate to="/hikaye" replace />} />
         <Route
           path="/final"
           element={
             <FinalPage locale={locale} journey={journey} resetJourney={() => setJourney([])} />
           }
         />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
   );

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { withMediaVersion } from "../data/media";
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const padFrame = (index) => String(index + 1).padStart(4, "0");
@@ -25,9 +26,10 @@ export default function FrameScrubScene({
   const [isTouch, setIsTouch] = useState(false);
   const [pinState, setPinState] = useState("before");
   const [isReady, setIsReady] = useState(false);
+  const [hasLoadError, setHasLoadError] = useState(false);
 
   const frameUrl = useCallback(
-    (index) => `${frameBaseUrl}/${padFrame(index)}.${frameExtension}`,
+    (index) => withMediaVersion(`${frameBaseUrl}/${padFrame(index)}.${frameExtension}`),
     [frameBaseUrl, frameExtension]
   );
 
@@ -133,6 +135,8 @@ export default function FrameScrubScene({
   );
 
   useEffect(() => {
+    setIsReady(false);
+    setHasLoadError(false);
     setIsTouch(window.matchMedia("(pointer: coarse)").matches);
     stableHeightRef.current = Math.round(window.visualViewport?.height || window.innerHeight);
     stableWidthRef.current = window.innerWidth;
@@ -140,9 +144,11 @@ export default function FrameScrubScene({
     const initialLoads = Array.from({ length: Math.min(frameCount, 8) }, (_, index) =>
       loadFrame(index)
     );
-    Promise.allSettled(initialLoads).then(() => {
+    Promise.allSettled(initialLoads).then((results) => {
+      const loadedFrames = results.filter((result) => result.status === "fulfilled").length;
       drawNearestFrame(currentIndexRef.current);
-      setIsReady(framesRef.current.size > 0);
+      setIsReady(loadedFrames > 0 || framesRef.current.size > 0);
+      setHasLoadError(loadedFrames === 0 && framesRef.current.size === 0);
     });
   }, [drawNearestFrame, frameCount, loadFrame]);
 
@@ -203,7 +209,9 @@ export default function FrameScrubScene({
 
   return (
     <section
-      className={`frame-scrub-section ${isReady ? "is-ready" : ""} is-${pinState} ${className}`.trim()}
+      className={`frame-scrub-section ${isReady ? "is-ready" : ""} ${
+        !isReady && !hasLoadError ? "is-loading" : ""
+      } is-${pinState} ${className}`.trim()}
       ref={sectionRef}
       aria-label="Kare kontrollü Amasya sahnesi"
     >
@@ -212,7 +220,11 @@ export default function FrameScrubScene({
         <canvas className="frame-scrub-canvas" ref={canvasRef} aria-hidden="true" />
         <div className="frame-scrub-overlay" aria-hidden="true" />
         <div className="scrub-hint">
-          {isTouch ? hintLabels?.touch || "Parmağını yavaşça kaydır" : hintLabels?.desktop || "Yavaşça kaydır"}
+          {!isReady && !hasLoadError
+            ? hintLabels?.loading || "Video hazırlanıyor"
+            : isTouch
+              ? hintLabels?.touch || "Parmağını yavaşça kaydır"
+              : hintLabels?.desktop || "Yavaşça kaydır"}
         </div>
         <div className="scrub-progress" ref={progressBarRef} />
       </div>

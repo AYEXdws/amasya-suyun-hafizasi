@@ -4,6 +4,14 @@ test-results
 .DS_Store
 public/assets/videos/*.mov
 public/assets/videos/*.mp4
+public/assets/videos
+public/assets/videos/**
 public/assets/frames/*
+public/assets/frames
+public/assets/frames/**
 public/assets/images/*
+public/assets/images
+public/assets/images/**
 public/assets/sounds/*
+public/assets/sounds
+public/assets/sounds/**

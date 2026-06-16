@@ -5,12 +5,14 @@ const lerp = (start, end, amount) => start + (end - start) * amount;
 const mediaSourcesFrom = (src) => {
   const fallbackBase = "/assets/videos/kral-kaya-hero";
   const cleanSrc = src || `${fallbackBase}.mov`;
-  const base = cleanSrc.replace(/\.(mov|mp4|webm)$/i, "");
+  const [pathPart, suffixPart = ""] = cleanSrc.split(/([?#].*)/);
+  const suffix = suffixPart || "";
+  const base = pathPart.replace(/\.(mov|mp4|webm)$/i, "");
 
   return {
-    mov: cleanSrc.endsWith(".mov") ? cleanSrc : null,
-    mp4: cleanSrc.endsWith(".mp4") ? cleanSrc : `${base}.mp4`,
-    webm: cleanSrc.endsWith(".webm") ? cleanSrc : `${base}.webm`,
+    mov: pathPart.endsWith(".mov") ? cleanSrc : null,
+    mp4: pathPart.endsWith(".mp4") ? cleanSrc : `${base}.mp4${suffix}`,
+    webm: pathPart.endsWith(".webm") ? cleanSrc : `${base}.webm${suffix}`,
   };
 };
 
@@ -37,8 +39,9 @@ export default function ScrollScrubScene({
   const displayedTimeRef = useRef(0);
   const lastSeekAtRef = useRef(0);
   const lastProgressRef = useRef(-1);
+  const pendingSeekTimeRef = useRef(null);
+  const lastForcedSeekAtRef = useRef(0);
   const progressBarRef = useRef(null);
-  const objectUrlRef = useRef(null);
   const viewportHeightRef = useRef(0);
   const viewportWidthRef = useRef(0);
   const prefersReducedMotionRef = useRef(false);
@@ -48,9 +51,8 @@ export default function ScrollScrubScene({
   const [isTouch, setIsTouch] = useState(false);
   const [pinState, setPinState] = useState("before");
   const [useMobileVideo, setUseMobileVideo] = useState(false);
-  const [preparedSrc, setPreparedSrc] = useState("");
-  const [downloadProgress, setDownloadProgress] = useState(0);
   const [isPreparing, setIsPreparing] = useState(false);
+  const [isScrubReady, setIsScrubReady] = useState(false);
 
   const mediaSources = useMemo(() => {
     const activePlaceVideo = useMobileVideo && place?.mobileVideo ? place.mobileVideo : place?.video;
@@ -94,80 +96,26 @@ export default function ScrollScrubScene({
   }, []);
 
   useEffect(() => {
+    metadataReadyRef.current = false;
+    targetTimeRef.current = 0;
+    displayedTimeRef.current = 0;
+    lastSeekAtRef.current = 0;
+    lastProgressRef.current = -1;
+    pendingSeekTimeRef.current = null;
+    lastForcedSeekAtRef.current = 0;
+    setProgress(0);
+    setVideoFailed(false);
+
     if (!remoteSrc) {
-      setPreparedSrc("");
+      setIsPreparing(false);
+      setIsScrubReady(true);
       return undefined;
     }
 
-    let cancelled = false;
-    const controller = new AbortController();
-
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-
-    setPreparedSrc("");
-    setDownloadProgress(0);
     setIsPreparing(true);
+    setIsScrubReady(false);
 
-    const prepareVideo = async () => {
-      try {
-        const response = await fetch(remoteSrc, {
-          cache: "force-cache",
-          mode: "cors",
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Video fetch failed: ${response.status}`);
-        }
-
-        const total = Number(response.headers.get("content-length")) || 0;
-
-        if (!response.body || !total) {
-          const blob = await response.blob();
-          if (cancelled) return;
-          objectUrlRef.current = URL.createObjectURL(blob);
-          setPreparedSrc(objectUrlRef.current);
-          setDownloadProgress(1);
-          setIsPreparing(false);
-          return;
-        }
-
-        const reader = response.body.getReader();
-        const chunks = [];
-        let received = 0;
-
-        while (!cancelled) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          chunks.push(value);
-          received += value.byteLength;
-          setDownloadProgress(Math.min(received / total, 1));
-        }
-
-        if (cancelled) return;
-
-        const blob = new Blob(chunks, { type: "video/mp4" });
-        objectUrlRef.current = URL.createObjectURL(blob);
-        setPreparedSrc(objectUrlRef.current);
-        setDownloadProgress(1);
-        setIsPreparing(false);
-      } catch {
-        if (cancelled) return;
-        setPreparedSrc(remoteSrc);
-        setDownloadProgress(1);
-        setIsPreparing(false);
-      }
-    };
-
-    prepareVideo();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
+    return undefined;
   }, [remoteSrc]);
 
   useEffect(() => {
@@ -180,6 +128,8 @@ export default function ScrollScrubScene({
     displayedTimeRef.current = 0;
     lastSeekAtRef.current = 0;
     lastProgressRef.current = -1;
+    pendingSeekTimeRef.current = null;
+    lastForcedSeekAtRef.current = 0;
     setProgress(0);
     setVideoFailed(false);
 
@@ -217,33 +167,52 @@ export default function ScrollScrubScene({
       }
     };
 
-    const seekVideo = (time) => {
-      if (typeof video.fastSeek === "function" && Math.abs(video.currentTime - time) > 0.55) {
-        video.fastSeek(time);
+    const seekVideo = (time, force = false) => {
+      if (!metadataReadyRef.current) return;
+      const duration = Number.isFinite(video.duration) ? video.duration : 0;
+      const safeTime = duration > 0 ? clamp(time, 0, duration) : Math.max(0, time);
+
+      if (video.seeking && !force) {
+        pendingSeekTimeRef.current = safeTime;
         return;
       }
 
-      video.currentTime = time;
+      pendingSeekTimeRef.current = null;
+      try {
+        lastForcedSeekAtRef.current = performance.now();
+        if (typeof video.fastSeek === "function" && Math.abs(video.currentTime - safeTime) > 0.65) {
+          video.fastSeek(safeTime);
+        } else {
+          video.currentTime = safeTime;
+        }
+      } catch {
+        pendingSeekTimeRef.current = safeTime;
+      }
     };
 
     const animate = (now = 0) => {
       if (metadataReadyRef.current && !prefersReducedMotionRef.current) {
         const isCoarse = coarsePointerRef.current;
-        const targetDelta = Math.abs(targetTimeRef.current - displayedTimeRef.current);
-        const lerpAmount = isCoarse ? 0.28 : 0.12;
-        const minSeekInterval = isCoarse ? 42 : 48;
-        const seekThreshold = isCoarse ? 0.035 : 0.055;
-        const nextTime =
-          isCoarse && targetDelta > 0.28
-            ? targetTimeRef.current
-            : lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
+        const lerpAmount = isCoarse ? 0.2 : 0.15;
+        const minSeekInterval = isCoarse ? 58 : 46;
+        const seekThreshold = isCoarse ? 0.045 : 0.05;
+        const nextTime = lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
+        const pendingTime = pendingSeekTimeRef.current;
 
         displayedTimeRef.current = nextTime;
 
         if (
+          video.seeking &&
+          pendingTime != null &&
+          now - lastForcedSeekAtRef.current > 420
+        ) {
+          seekVideo(pendingTime, true);
+        }
+
+        if (
           now - lastSeekAtRef.current >= minSeekInterval &&
           Math.abs(video.currentTime - nextTime) > seekThreshold &&
-          (isCoarse || !video.seeking)
+          !video.seeking
         ) {
           lastSeekAtRef.current = now;
           seekVideo(nextTime);
@@ -253,16 +222,46 @@ export default function ScrollScrubScene({
       frameRef.current = requestAnimationFrame(animate);
     };
 
-    const handleLoadedMetadata = () => {
+    const markReady = () => {
       metadataReadyRef.current = true;
+      setIsPreparing(false);
+      setIsScrubReady(true);
       video.pause();
-      video.currentTime = 0;
+    };
+
+    const handleLoadedMetadata = () => {
+      video.pause();
+      if (video.currentTime !== 0) {
+        try {
+          video.currentTime = 0;
+        } catch {
+          pendingSeekTimeRef.current = 0;
+        }
+      }
       displayedTimeRef.current = 0;
+    };
+
+    const handleReady = () => {
+      markReady();
+      if (targetTimeRef.current === 0 && video.currentTime !== 0) {
+        seekVideo(0, true);
+      }
       updateTargetFromScroll();
+    };
+
+    const handleSeeked = () => {
+      const pendingTime = pendingSeekTimeRef.current;
+      if (pendingTime == null) return;
+      pendingSeekTimeRef.current = null;
+      if (Math.abs(video.currentTime - pendingTime) > 0.04) {
+        seekVideo(pendingTime, true);
+      }
     };
 
     const handleError = () => {
       setVideoFailed(true);
+      setIsPreparing(false);
+      setIsScrubReady(true);
     };
 
     const handleResize = () => {
@@ -270,32 +269,77 @@ export default function ScrollScrubScene({
       updateTargetFromScroll();
     };
 
+    const resyncAfterLifecycleChange = () => {
+      updateStableViewport();
+
+      if (video.readyState >= 2) {
+        markReady();
+      } else if (!video.error) {
+        metadataReadyRef.current = false;
+        setIsPreparing(true);
+        setIsScrubReady(false);
+        video.load();
+      }
+
+      updateTargetFromScroll();
+      displayedTimeRef.current = video.currentTime || targetTimeRef.current || 0;
+      if (metadataReadyRef.current) {
+        seekVideo(targetTimeRef.current, true);
+      }
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = requestAnimationFrame(animate);
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        resyncAfterLifecycleChange();
+      }
+    };
+
     video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("loadeddata", handleReady);
+    video.addEventListener("canplay", handleReady);
+    video.addEventListener("seeked", handleSeeked);
     video.addEventListener("error", handleError);
     window.addEventListener("scroll", updateTargetFromScroll, { passive: true });
     window.addEventListener("resize", handleResize);
+    window.addEventListener("focus", resyncAfterLifecycleChange);
+    window.addEventListener("pageshow", resyncAfterLifecycleChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.visualViewport?.addEventListener("resize", handleResize);
 
     video.load();
     updateTargetFromScroll();
     frameRef.current = requestAnimationFrame(animate);
 
+    const hydrateCachedReadyState = () => {
+      if (video.readyState >= 2) {
+        markReady();
+        updateTargetFromScroll();
+        seekVideo(targetTimeRef.current, true);
+      } else if (video.readyState >= 1) {
+        handleLoadedMetadata();
+      }
+    };
+
+    requestAnimationFrame(hydrateCachedReadyState);
+    window.setTimeout(hydrateCachedReadyState, 240);
+
     return () => {
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("loadeddata", handleReady);
+      video.removeEventListener("canplay", handleReady);
+      video.removeEventListener("seeked", handleSeeked);
       video.removeEventListener("error", handleError);
       window.removeEventListener("scroll", updateTargetFromScroll);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("focus", resyncAfterLifecycleChange);
+      window.removeEventListener("pageshow", resyncAfterLifecycleChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.visualViewport?.removeEventListener("resize", handleResize);
       cancelAnimationFrame(frameRef.current);
     };
-  }, [preparedSrc]);
-
-  useEffect(
-    () => () => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
-    },
-    []
-  );
+  }, [remoteSrc]);
 
   const textureClass = place?.texture || "water";
   const poster = posterSrc || place?.image;
@@ -305,7 +349,7 @@ export default function ScrollScrubScene({
 
   return (
     <section
-      className={`scrub-section ${textureClass} ${children ? "has-content" : ""} is-${pinState} ${className}`.trim()}
+      className={`scrub-section ${textureClass} ${children ? "has-content" : ""} ${isPreparing || !isScrubReady ? "is-loading" : ""} is-${pinState} ${className}`.trim()}
       ref={sectionRef}
       aria-label={label}
     >
@@ -324,30 +368,31 @@ export default function ScrollScrubScene({
 
         {!videoFailed && (
           <video
-            key={preparedSrc || remoteSrc}
-            className="scrub-video"
+            key={remoteSrc}
+            className={`scrub-video ${isScrubReady ? "is-ready" : ""}`.trim()}
             ref={videoRef}
-            src={preparedSrc || undefined}
+            src={remoteSrc || undefined}
             muted
             playsInline
             preload="auto"
             poster={poster}
+            style={{ opacity: isScrubReady ? 1 : 0 }}
             onError={() => setVideoFailed(true)}
           />
         )}
 
-        {videoFailed && <div className="scrub-placeholder" aria-hidden="true" />}
+        {(!isScrubReady || videoFailed) && <div className="scrub-placeholder" aria-hidden="true" />}
 
         <div className="scrub-overlay" aria-hidden="true" />
         {place?.ambientSound && (
           <audio src={place.ambientSound} preload="none" aria-label={`${place.name} ortam sesi`} />
         )}
         <div className="scrub-hint">
-          {isPreparing
-            ? `${hintLabels?.loading || "Video hazırlanıyor"} ${Math.round(downloadProgress * 100)}%`
+          {isPreparing || !isScrubReady
+            ? hintLabels?.loading || "Video hazırlanıyor"
             : isTouch
-              ? hintLabels?.touch || "Parmaginla ilerlet"
-              : hintLabels?.desktop || "Kaydirarak ilerle"}
+              ? hintLabels?.touch || "Parmağını yavaşça kaydır"
+              : hintLabels?.desktop || "Yavaşça kaydır"}
         </div>
         <div className="scrub-progress" ref={progressBarRef} style={{ transform: `scaleX(${progress})` }} />
         {activeCaption?.text && (
@@ -355,7 +400,7 @@ export default function ScrollScrubScene({
             {activeCaption.text}
           </div>
         )}
-        {children && <div className="scrub-content">{children}</div>}
+        {children && (isScrubReady || videoFailed) && <div className="scrub-content">{children}</div>}
       </div>
     </section>
   );
