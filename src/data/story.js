@@ -33,7 +33,7 @@ export const uiCopy = {
       index: "Durak listesi",
     },
     explore: {
-      eyebrow: "Şehir indeksi",
+      eyebrow: "Amasya'nın izleri",
       title: "Amasya'yı su, taş ve avlu üzerinden keşfet.",
       subtitle:
         "Her durak tek başına değil; Yeşilırmak, Yalıboyu, Harşena ve Osmanlı şehir düzeniyle birlikte anlam kazanır.",

@@ -20,6 +20,41 @@ const optimizedVideoSource = (src) => {
   return src;
 };
 
+const fetchVideoAsObjectUrl = async (src, onProgress, signal) => {
+  const response = await fetch(src, { signal });
+  if (!response.ok) {
+    throw new Error(`Video download failed: ${response.status}`);
+  }
+
+  const contentLength = Number(response.headers.get("content-length")) || 0;
+  if (!response.body) {
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  }
+
+  const reader = response.body.getReader();
+  const chunks = [];
+  let received = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.byteLength;
+
+    if (contentLength > 0) {
+      onProgress(Math.min(99, Math.round((received / contentLength) * 100)));
+    }
+  }
+
+  const blob = new Blob(chunks, {
+    type: response.headers.get("content-type") || "video/mp4",
+  });
+
+  onProgress(100);
+  return URL.createObjectURL(blob);
+};
+
 export default function ScrollScrubScene({
   place,
   captions = [],
@@ -41,6 +76,10 @@ export default function ScrollScrubScene({
   const lastProgressRef = useRef(-1);
   const pendingSeekTimeRef = useRef(null);
   const lastForcedSeekAtRef = useRef(0);
+  const lastScrollAtRef = useRef(0);
+  const lastSeekStartedAtRef = useRef(0);
+  const adaptiveSeekDelayRef = useRef(0);
+  const objectUrlRef = useRef("");
   const progressBarRef = useRef(null);
   const viewportHeightRef = useRef(0);
   const viewportWidthRef = useRef(0);
@@ -53,6 +92,8 @@ export default function ScrollScrubScene({
   const [useMobileVideo, setUseMobileVideo] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
   const [isScrubReady, setIsScrubReady] = useState(false);
+  const [preparedSrc, setPreparedSrc] = useState("");
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const mediaSources = useMemo(() => {
     const activePlaceVideo = useMobileVideo && place?.mobileVideo ? place.mobileVideo : place?.video;
@@ -103,10 +144,15 @@ export default function ScrollScrubScene({
     lastProgressRef.current = -1;
     pendingSeekTimeRef.current = null;
     lastForcedSeekAtRef.current = 0;
+    lastScrollAtRef.current = 0;
+    lastSeekStartedAtRef.current = 0;
+    adaptiveSeekDelayRef.current = 0;
     setProgress(0);
     setVideoFailed(false);
+    setDownloadProgress(0);
 
     if (!remoteSrc) {
+      setPreparedSrc("");
       setIsPreparing(false);
       setIsScrubReady(true);
       return undefined;
@@ -115,13 +161,46 @@ export default function ScrollScrubScene({
     setIsPreparing(true);
     setIsScrubReady(false);
 
-    return undefined;
+    const controller = new AbortController();
+    let cancelled = false;
+
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = "";
+    }
+
+    setPreparedSrc("");
+
+    fetchVideoAsObjectUrl(remoteSrc, setDownloadProgress, controller.signal)
+      .then((objectUrl) => {
+        if (cancelled) {
+          URL.revokeObjectURL(objectUrl);
+          return;
+        }
+
+        objectUrlRef.current = objectUrl;
+        setPreparedSrc(objectUrl);
+      })
+      .catch((error) => {
+        if (cancelled || error?.name === "AbortError") return;
+        setDownloadProgress(0);
+        setPreparedSrc(remoteSrc);
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = "";
+      }
+    };
   }, [remoteSrc]);
 
   useEffect(() => {
     const video = videoRef.current;
     const section = sectionRef.current;
-    if (!video || !section) return undefined;
+    if (!video || !section || !preparedSrc) return undefined;
 
     metadataReadyRef.current = false;
     targetTimeRef.current = 0;
@@ -130,6 +209,9 @@ export default function ScrollScrubScene({
     lastProgressRef.current = -1;
     pendingSeekTimeRef.current = null;
     lastForcedSeekAtRef.current = 0;
+    lastScrollAtRef.current = 0;
+    lastSeekStartedAtRef.current = 0;
+    adaptiveSeekDelayRef.current = 0;
     setProgress(0);
     setVideoFailed(false);
 
@@ -150,6 +232,7 @@ export default function ScrollScrubScene({
       const rawProgress = scrollableDistance <= 0 ? 0 : -rect.top / scrollableDistance;
       const nextProgress = clamp(rawProgress, 0, 1);
       const nextPinState = rect.top > 0 ? "before" : rect.bottom <= viewportHeight ? "after" : "active";
+      lastScrollAtRef.current = performance.now();
 
       if (progressBarRef.current) {
         progressBarRef.current.style.transform = `scaleX(${nextProgress})`;
@@ -179,12 +262,10 @@ export default function ScrollScrubScene({
 
       pendingSeekTimeRef.current = null;
       try {
-        lastForcedSeekAtRef.current = performance.now();
-        if (typeof video.fastSeek === "function" && Math.abs(video.currentTime - safeTime) > 0.65) {
-          video.fastSeek(safeTime);
-        } else {
-          video.currentTime = safeTime;
-        }
+        const now = performance.now();
+        lastForcedSeekAtRef.current = now;
+        lastSeekStartedAtRef.current = now;
+        video.currentTime = safeTime;
       } catch {
         pendingSeekTimeRef.current = safeTime;
       }
@@ -193,10 +274,16 @@ export default function ScrollScrubScene({
     const animate = (now = 0) => {
       if (metadataReadyRef.current && !prefersReducedMotionRef.current) {
         const isCoarse = coarsePointerRef.current;
-        const lerpAmount = isCoarse ? 0.2 : 0.15;
-        const minSeekInterval = isCoarse ? 58 : 46;
-        const seekThreshold = isCoarse ? 0.045 : 0.05;
-        const nextTime = lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
+        const lerpAmount = isCoarse ? 0.24 : 0.2;
+        const baseSeekInterval = isCoarse ? 96 : 72;
+        const minSeekInterval = baseSeekInterval + adaptiveSeekDelayRef.current;
+        const seekThreshold = isCoarse ? 0.11 : 0.085;
+        const targetDistance = Math.abs(targetTimeRef.current - displayedTimeRef.current);
+        const scrollIsHot = now - lastScrollAtRef.current < 180;
+        const nextTime =
+          scrollIsHot && targetDistance > 1.15
+            ? targetTimeRef.current
+            : lerp(displayedTimeRef.current, targetTimeRef.current, lerpAmount);
         const pendingTime = pendingSeekTimeRef.current;
 
         displayedTimeRef.current = nextTime;
@@ -216,6 +303,10 @@ export default function ScrollScrubScene({
         ) {
           lastSeekAtRef.current = now;
           seekVideo(nextTime);
+        }
+
+        if (adaptiveSeekDelayRef.current > 0 && !video.seeking) {
+          adaptiveSeekDelayRef.current = Math.max(0, adaptiveSeekDelayRef.current - 0.25);
         }
       }
 
@@ -250,6 +341,11 @@ export default function ScrollScrubScene({
     };
 
     const handleSeeked = () => {
+      const seekDuration = performance.now() - lastSeekStartedAtRef.current;
+      if (seekDuration > 180) {
+        adaptiveSeekDelayRef.current = Math.min(120, adaptiveSeekDelayRef.current + 24);
+      }
+
       const pendingTime = pendingSeekTimeRef.current;
       if (pendingTime == null) return;
       pendingSeekTimeRef.current = null;
@@ -339,7 +435,7 @@ export default function ScrollScrubScene({
       window.visualViewport?.removeEventListener("resize", handleResize);
       cancelAnimationFrame(frameRef.current);
     };
-  }, [remoteSrc]);
+  }, [preparedSrc]);
 
   const textureClass = place?.texture || "water";
   const poster = posterSrc || place?.image;
@@ -368,10 +464,10 @@ export default function ScrollScrubScene({
 
         {!videoFailed && (
           <video
-            key={remoteSrc}
+            key={preparedSrc}
             className={`scrub-video ${isScrubReady ? "is-ready" : ""}`.trim()}
             ref={videoRef}
-            src={remoteSrc || undefined}
+            src={preparedSrc || undefined}
             muted
             playsInline
             preload="auto"
@@ -389,7 +485,9 @@ export default function ScrollScrubScene({
         )}
         <div className="scrub-hint">
           {isPreparing || !isScrubReady
-            ? hintLabels?.loading || "Video hazırlanıyor"
+            ? `${hintLabels?.loading || "Video hazırlanıyor"}${
+                downloadProgress > 0 && downloadProgress < 100 ? ` ${downloadProgress}%` : ""
+              }`
             : isTouch
               ? hintLabels?.touch || "Parmağını yavaşça kaydır"
               : hintLabels?.desktop || "Yavaşça kaydır"}
